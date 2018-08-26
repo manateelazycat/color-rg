@@ -91,12 +91,13 @@
   (require 'exec-path-from-shell)
   (exec-path-from-shell-initialize))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Group ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defgroup color-rg nil
-  "Search and refacotry code with rg."
+  "Search and refacotry code base on ripgrep."
   :group 'color-rg)
 
 (defcustom color-rg-buffer "*color-rg*"
-  "The buffer of search result."
+  "The buffer name of search result."
   :type 'string
   :group 'color-rg)
 
@@ -105,6 +106,62 @@
   :type 'hook
   :group 'color-rg-mode)
 
+(defface color-rg-header-line-text
+  '((t (:foreground "Green3" :bold t)))
+  "Face for header line text."
+  :group 'color-rg)
+
+(defface color-rg-header-line-keyword
+  '((t (:foreground "Gold" :bold t)))
+  "Face for header line keyword."
+  :group 'color-rg)
+
+(defface color-rg-header-line-directory
+  '((t (:foreground "DodgerBlue" :bold t)))
+  "Face for header line directory."
+  :group 'color-rg)
+
+(defface color-rg-file
+  '((t (:foreground "DodgerBlue" :bold t)))
+  "Face for filepath."
+  :group 'color-rg)
+
+(defface color-rg-line-number
+  '((t (:foreground "Purple")))
+  "Face for line number."
+  :group 'color-rg)
+
+(defface color-rg-column-number
+  '((t (:foreground "Purple")))
+  "Face for column number."
+  :group 'color-rg)
+
+(defface color-rg-match
+  '((t (:foreground "Gold3" :bold t)))
+  "Face for keyword match."
+  :group 'color-rg)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar color-rg-temp-buffers nil
+  "The temp buffers use to kill temp buffer after quit color-rg.")
+
+(defvar color-rg-window-configuration nil
+  "Save window configuration before search,
+used to restore window configuration after finish search.")
+
+(defvar color-rg-hit-count 0
+  "Search keyword hit counter.")
+
+(defvar color-rg-regexp-file "^[/\\~].*"
+  "Regexp to match filename.")
+
+(defvar color-rg-regexp-split-line "\n\n"
+  "Regexp to match empty line between two files.")
+
+(defvar color-rg-regexp-position "^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):"
+  "Regexp to match line/column string.")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; color-rg mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar color-rg-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "j") 'color-rg-jump-next-keyword)
@@ -116,75 +173,6 @@
     map)
   "Keymap used by `color-rg-mode'.")
 
-(defvar color-rg-temp-buffers nil)
-
-(defvar color-rg-window-configuration nil)
-
-(defvar color-rg-hit-count 0)
-
-(defvar color-rg-regexp-file "^[/\\~].*")
-
-(defvar color-rg-regexp-split-line "\n\n")
-
-(defvar color-rg-regexp-position "^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):")
-
-(defface color-rg-title
-  '((t (:foreground "Green3" :bold t)))
-  "Title."
-  :group 'color-rg)
-
-(defface color-rg-title-keyword
-  '((t (:foreground "Gold" :bold t)))
-  "Title keyword."
-  :group 'color-rg)
-
-(defface color-rg-title-directory
-  '((t (:foreground "DodgerBlue" :bold t)))
-  "Title directory."
-  :group 'color-rg)
-
-(defface color-rg-match
-  '((t (:foreground "Gold3" :bold t)))
-  "Key."
-  :group 'color-rg)
-
-(defface color-rg-line-number
-  '((t (:foreground "Purple" :bold t)))
-  "Line number."
-  :group 'color-rg)
-
-(defface color-rg-column-number
-  '((t (:foreground "Purple" :bold t)))
-  "Column number."
-  :group 'color-rg)
-
-(defface color-rg-file-tag
-  '((t :inherit font-lock-function-name-face))
-  "face for file tag in grouped layout"
-  :group 'rg-face)
-
-(defface color-rg-file
-  '((t (:foreground "DodgerBlue" :bold t)))
-  "Filepath."
-  :group 'color-rg)
-
-(defface color-rg-process-end
-  '((t (:foreground "Gray20" :bold t)))
-  "Process end."
-  :group 'color-rg)
-
-(defun color-rg-highlight-keywords ()
-  "Highlight keywords."
-  (font-lock-add-keywords
-   nil
-   '(
-     ("^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):" 1 'color-rg-line-number)
-     ("^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):" 2 'color-rg-column-number)
-     ("^[/\\~].*" . 'color-rg-file)
-     ("^Process\\s-.*finished" . 'color-rg-process-end)
-     ))
-  (font-lock-mode 1))
-
 (define-compilation-mode color-rg-mode "color-rg"
   (interactive)
   (kill-all-local-variables)
@@ -195,6 +183,17 @@
   (run-hooks 'color-rg-mode-hook)
   (add-hook 'compilation-filter-hook 'color-rg-filter nil t)
   )
+
+(defun color-rg-highlight-keywords ()
+  "Highlight keywords."
+  (font-lock-add-keywords
+   nil
+   '(
+     ("^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):" 1 'color-rg-line-number)
+     ("^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):" 2 'color-rg-column-number)
+     ("^[/\\~].*" . 'color-rg-file)
+     ))
+  (font-lock-mode 1))
 
 (defun color-rg-filter ()
   "Handle match highlighting escape sequences inserted by the rg process.
@@ -228,25 +227,7 @@ This function is called from `compilation-filter-hook'."
           (replace-match "" t t))))
     ))
 
-(defun color-rg (&optional keyword directory)
-  (interactive)
-  ;; Save window configuration before do search.
-  (setq color-rg-window-configuration (current-window-configuration))
-  ;; Set `enable-local-variables' to :safe, avoid emacs ask annoyingly question when open file by color-rg.
-  (setq enable-local-variables :safe)
-  ;; Reset hit count.
-  (setq color-rg-hit-count 0)
-  ;; Search.
-  (let* ((search-keyboard
-          (if keyword
-              keyword
-            (color-rg-read-input)))
-         (search-directory
-          (if directory
-              directory
-            default-directory)))
-    (color-rg-search search-keyboard search-directory)))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search (keyword directory)
   (let* ((search-command (format "rg %s %s --column --color=always" keyword directory)))
     ;; Erase or create search result.
@@ -257,12 +238,14 @@ This function is called from `compilation-filter-hook'."
       (generate-new-buffer color-rg-buffer))
     ;; Run search command.
     (with-current-buffer color-rg-buffer
+      ;; Start command.
       (compilation-start search-command 'color-rg-mode)
+      ;; Set header line.
       (setq header-line-format (format "%s%s%s%s"
-                                       (propertize "[COLOR-RG] Search '" 'font-lock-face 'color-rg-title)
-                                       (propertize keyword 'font-lock-face 'color-rg-title-keyword)
-                                       (propertize "' in directory: " 'font-lock-face 'color-rg-title)
-                                       (propertize directory 'font-lock-face 'color-rg-title-directory)
+                                       (propertize "[COLOR-RG] Search '" 'font-lock-face 'color-rg-header-line-text)
+                                       (propertize keyword 'font-lock-face 'color-rg-header-line-keyword)
+                                       (propertize "' in directory: " 'font-lock-face 'color-rg-header-line-text)
+                                       (propertize directory 'font-lock-face 'color-rg-header-line-directory)
                                        )))
     ;; Pop search buffer.
     (pop-to-buffer color-rg-buffer)
@@ -294,6 +277,38 @@ This function is called from `compilation-filter-hook'."
     (end-of-line)
     (search-forward-regexp regexp nil t)))
 
+(defun color-rg-get-match-buffer (filepath)
+  (catch 'find-match
+    (dolist (buffer (buffer-list))
+      (when (string-equal (buffer-file-name buffer) filepath)
+        (throw 'find-match buffer)))
+    nil))
+
+(defun color-rg-current-line-empty-p ()
+  (save-excursion
+    (beginning-of-line)
+    (looking-at "[[:space:]]*$")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun color-rg (&optional keyword directory)
+  (interactive)
+  ;; Save window configuration before do search.
+  (setq color-rg-window-configuration (current-window-configuration))
+  ;; Set `enable-local-variables' to :safe, avoid emacs ask annoyingly question when open file by color-rg.
+  (setq enable-local-variables :safe)
+  ;; Reset hit count.
+  (setq color-rg-hit-count 0)
+  ;; Search.
+  (let* ((search-keyboard
+          (if keyword
+              keyword
+            (color-rg-read-input)))
+         (search-directory
+          (if directory
+              directory
+            default-directory)))
+    (color-rg-search search-keyboard search-directory)))
+
 (defun color-rg-jump-next-keyword ()
   (interactive)
   (let* ((next-position (color-rg-find-next-position color-rg-regexp-position)))
@@ -312,6 +327,7 @@ This function is called from `compilation-filter-hook'."
                        (search-backward-regexp color-rg-regexp-position nil t)
                        (line-number-at-pos))))
                (if (equal first-search-line (line-number-at-pos))
+                   ;; Search previous again if first search is same line of point.
                    (save-excursion
                      (beginning-of-line)
                      (search-backward-regexp color-rg-regexp-position nil t))
@@ -334,11 +350,6 @@ This function is called from `compilation-filter-hook'."
           (color-rg-open-file))
       (message "Reach to last file."))))
 
-(defun color-rg-current-line-empty-p ()
-  (save-excursion
-    (beginning-of-line)
-    (looking-at "[[:space:]]*$")))
-
 (defun color-rg-jump-prev-file ()
   (interactive)
   (let ((prev-match-pos
@@ -353,6 +364,7 @@ This function is called from `compilation-filter-hook'."
                        (line-number-at-pos))))
                (if (and (> first-search-line prev-empty-line)
                         (not (color-rg-current-line-empty-p)))
+                   ;; Search filename previous again if first search is current file result area.
                    (save-excursion
                      (search-backward-regexp color-rg-regexp-split-line)
                      (search-backward-regexp color-rg-regexp-file nil t))
@@ -395,13 +407,6 @@ This function is called from `compilation-filter-hook'."
     (search-forward-regexp color-rg-regexp-position)
     (forward-char (- match-column 1))
     ))
-
-(defun color-rg-get-match-buffer (filepath)
-  (catch 'find-match
-    (dolist (buffer (buffer-list))
-      (when (string-equal (buffer-file-name buffer) filepath)
-        (throw 'find-match buffer)))
-    nil))
 
 (defun color-rg-quit ()
   (interactive)
