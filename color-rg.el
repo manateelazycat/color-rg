@@ -186,6 +186,7 @@ used to restore window configuration after finish search.")
 
 (defun color-rg-highlight-keywords ()
   "Highlight keywords."
+  ;; Add keywords for highlight.
   (font-lock-add-keywords
    nil
    '(
@@ -193,6 +194,11 @@ used to restore window configuration after finish search.")
      ("^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):" 2 'color-rg-column-number)
      ("^[/\\~].*" . 'color-rg-file)
      ))
+  ;; NOTE:
+  ;; Because search line maybe just contains *half* of string/comment that make rest content of buffer mark as string.
+  ;; So we need turn off comment/string font-lock through set `font-lock-keywords-only'.
+  (set (make-local-variable 'font-lock-keywords-only) t)
+  ;; Enable font lock.
   (font-lock-mode 1))
 
 (defun color-rg-filter ()
