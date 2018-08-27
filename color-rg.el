@@ -127,13 +127,18 @@
   :group 'color-rg)
 
 (defface color-rg-line-number
-  '((t (:foreground "Purple")))
+  '((t (:foreground "gray35")))
   "Face for line number."
   :group 'color-rg)
 
 (defface color-rg-column-number
-  '((t (:foreground "Purple")))
+  '((t (:foreground "gray35")))
   "Face for column number."
+  :group 'color-rg)
+
+(defface color-rg-position-splitter
+  '((t (:foreground "gray25")))
+  "Face for position splitter."
   :group 'color-rg)
 
 (defface color-rg-match
@@ -190,8 +195,10 @@ used to restore window configuration after finish search.")
   (font-lock-add-keywords
    nil
    '(
-     ("^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):" 1 'color-rg-line-number)
-     ("^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):" 2 'color-rg-column-number)
+     ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 1 'color-rg-line-number)
+     ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 2 'color-rg-position-splitter)
+     ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 3 'color-rg-column-number)
+     ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 4 'color-rg-position-splitter)
      ("^[/\\~].*" . 'color-rg-file)
      ))
   ;; NOTE:
