@@ -424,52 +424,28 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-enable-edit-mode ()
   (interactive)
+  ;; Turn off readonly mode.
   (read-only-mode -1)
+  ;; Clean keymap.
   (use-local-map nil)
+  ;; Set edit area.
   (let (start end)
-    (save-excursion
-      ;; Make first char read-only.
-      (put-text-property 1 2 'front-sticky '(read-only))
-      ;; Make head four lines (compilation-mode template) read-only.
-      (goto-char (point-min))
-      (setq start (point))
-      (forward-line 3)
-      (end-of-line)
-      (setq end (point))
-      (put-text-property start end 'read-only t)
-      ;; Make file line read-only.
-      (goto-char (point-min))
-      (while (setq start (search-forward-regexp color-rg-regexp-file nil t))
-        (beginning-of-line)
-        (setq start (point))
-        (end-of-line)
-        (setq end (point))
-        (put-text-property (1- start) end 'read-only t))
-      ;; Make line position read-only.
-      (goto-char (point-min))
-      (while (setq start (search-forward-regexp color-rg-regexp-position nil t))
-        (beginning-of-line)
-        (setq start (point))
-        (search-forward-regexp color-rg-regexp-position nil t)
-        (setq end (point))
-        (put-text-property (1- start) (1- end) 'read-only t))
-      ;; Make line splitter read-only.
-      (goto-char (point-min))
-      (while (setq start (search-forward-regexp color-rg-regexp-split-line nil t))
-        (backward-char)
-        (setq start (point))
-        (end-of-line)
-        (setq end (point))
-        (put-text-property (1- start) end 'read-only t))
-      ;; Make last line read-only.
-      (goto-char (point-max))
-      (previous-line)
-      (backward-char)
-      (setq start (point))
-      (setq end (point-max))
-      (put-text-property start end 'read-only t))
-    )
-  )
+    ;; Make all buffer with readonly text property.
+    (let ((inhibit-read-only t))
+      (save-excursion
+        (put-text-property 1 2 'front-sticky '(read-only))
+        (put-text-property (point-min) (point-max) 'read-only t)
+        ))
+    ;; Make all code with edit property.
+    (let ((inhibit-read-only t))
+      (save-excursion
+        (goto-char (point-min))
+        (while (setq start (search-forward-regexp color-rg-regexp-position nil t))
+          (setq start (point))
+          (end-of-line)
+          (setq end (point))
+          (put-text-property (1- start) end 'read-only nil)))
+      )))
 
 (defun color-rg-quit ()
   (interactive)
