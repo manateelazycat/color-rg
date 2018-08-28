@@ -121,6 +121,11 @@
   "Face for header line directory."
   :group 'color-rg)
 
+(defface color-rg-header-line-edit-mode
+  '((t (:foreground "Gold" :bold t)))
+  "Face for header line edit mode."
+  :group 'color-rg)
+
 (defface color-rg-file
   '((t (:foreground "DodgerBlue" :bold t)))
   "Face for filepath."
@@ -241,6 +246,17 @@ This function is called from `compilation-filter-hook'."
           (replace-match "" t t))))
     ))
 
+(defun color-rg-update-header-line ()
+  (setq header-line-format (format "%s%s%s%s%s%s"
+                                   (propertize "[COLOR-RG] Search '" 'font-lock-face 'color-rg-header-line-text)
+                                   (propertize search-keyword 'font-lock-face 'color-rg-header-line-keyword)
+                                   (propertize "' in directory: " 'font-lock-face 'color-rg-header-line-text)
+                                   (propertize search-directory 'font-lock-face 'color-rg-header-line-directory)
+                                   (propertize " Mode: " 'font-lock-face 'color-rg-header-line-text)
+                                   (propertize edit-mode 'font-lock-face 'color-rg-header-line-edit-mode)
+                                   ))
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search (keyword directory)
   (let* ((search-command (format "rg %s %s --column --color=always" keyword directory)))
@@ -253,12 +269,10 @@ This function is called from `compilation-filter-hook'."
       ;; Start command.
       (compilation-start search-command 'color-rg-mode)
       ;; Set header line.
-      (setq header-line-format (format "%s%s%s%s"
-                                       (propertize "[COLOR-RG] Search '" 'font-lock-face 'color-rg-header-line-text)
-                                       (propertize keyword 'font-lock-face 'color-rg-header-line-keyword)
-                                       (propertize "' in directory: " 'font-lock-face 'color-rg-header-line-text)
-                                       (propertize directory 'font-lock-face 'color-rg-header-line-directory)
-                                       ))
+      (set (make-local-variable 'search-keyword) keyword)
+      (set (make-local-variable 'search-directory) directory)
+      (set (make-local-variable 'edit-mode) "View")
+      (color-rg-update-header-line)
       (read-only-mode 1)
       )
     ;; Pop search buffer.
@@ -424,6 +438,9 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-enable-edit-mode ()
   (interactive)
+  ;; Update header-line.
+  (set (make-local-variable 'edit-mode) "Edit")
+  (color-rg-update-header-line)
   ;; Turn off readonly mode.
   (read-only-mode -1)
   ;; Clean keymap.
