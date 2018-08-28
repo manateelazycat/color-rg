@@ -245,11 +245,9 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-search (keyword directory)
   (let* ((search-command (format "rg %s %s --column --color=always" keyword directory)))
     ;; Erase or create search result.
-    (if (get-buffer color-rg-buffer)
-        (with-current-buffer color-rg-buffer
-          (read-only-mode -1)
-          (erase-buffer))
-      (generate-new-buffer color-rg-buffer))
+    (when (get-buffer color-rg-buffer)
+      (kill-buffer color-rg-buffer))
+    (generate-new-buffer color-rg-buffer)
     ;; Run search command.
     (with-current-buffer color-rg-buffer
       ;; Start command.
@@ -446,9 +444,7 @@ This function is called from `compilation-filter-hook'."
         (setq start (point))
         (end-of-line)
         (setq end (point))
-        (put-text-property (1- start) end 'read-only t)
-        (message (format "%s %s" start end))
-        )
+        (put-text-property (1- start) end 'read-only t))
       ;; Make line position read-only.
       (goto-char (point-min))
       (while (setq start (search-forward-regexp color-rg-regexp-position nil t))
@@ -456,9 +452,7 @@ This function is called from `compilation-filter-hook'."
         (setq start (point))
         (search-forward-regexp color-rg-regexp-position nil t)
         (setq end (point))
-        (put-text-property (1- start) (1- end) 'read-only t)
-        (message (format "%s %s" start end))
-        )
+        (put-text-property (1- start) (1- end) 'read-only t))
       ;; Make line splitter read-only.
       (goto-char (point-min))
       (while (setq start (search-forward-regexp color-rg-regexp-split-line nil t))
@@ -466,17 +460,14 @@ This function is called from `compilation-filter-hook'."
         (setq start (point))
         (end-of-line)
         (setq end (point))
-        (put-text-property (1- start) end 'read-only t)
-        (message (format "%s %s" start end))
-        )
+        (put-text-property (1- start) end 'read-only t))
       ;; Make last line read-only.
       (goto-char (point-max))
       (previous-line)
       (backward-char)
       (setq start (point))
       (setq end (point-max))
-      (put-text-property start end 'read-only t)
-      )
+      (put-text-property start end 'read-only t))
     )
   )
 
