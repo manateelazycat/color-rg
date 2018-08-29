@@ -101,6 +101,11 @@
   :type 'string
   :group 'color-rg)
 
+(defcustom color-rg-temp-buffer " *color-rg temp* "
+  "The buffer name of clone temp buffer"
+  :type 'string
+  :group 'color-rg)
+
 (defcustom color-rg-mode-hook '()
   "color-rg mode hook."
   :type 'hook
@@ -170,6 +175,9 @@ used to restore window configuration after finish search.")
 
 (defvar color-rg-regexp-position "^\\([1-9][0-9]*\\):\\([1-9][0-9]*\\):"
   "Regexp to match line/column string.")
+
+(defvar color-rg-changed-lines nil
+  "The list that record the changed lines.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; color-rg mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar color-rg-mode-map
@@ -264,6 +272,7 @@ This function is called from `compilation-filter-hook'."
     (when (get-buffer color-rg-buffer)
       (kill-buffer color-rg-buffer))
     (generate-new-buffer color-rg-buffer)
+    (setq color-rg-changed-lines nil)
     ;; Run search command.
     (with-current-buffer color-rg-buffer
       ;; Start command.
@@ -316,6 +325,51 @@ This function is called from `compilation-filter-hook'."
   (save-excursion
     (beginning-of-line)
     (looking-at "[[:space:]]*$")))
+
+(defun color-rg-after-change-function (beg end leng-before)
+  (let* ((change-line (save-excursion
+                        (goto-char beg)
+                        (line-number-at-pos)))
+         start end
+         change-line-content
+         original-line-content)
+    (with-current-buffer color-rg-buffer
+      (save-excursion
+        (goto-line change-line)
+        (beginning-of-line)
+        (search-forward-regexp color-rg-regexp-position nil t)
+        (setq start (point))
+        (end-of-line)
+        (setq end (point))
+        (setq change-line-content (buffer-substring-no-properties start end)))
+      )
+    (with-current-buffer color-rg-temp-buffer
+      (save-excursion
+        (goto-line change-line)
+        (beginning-of-line)
+        (search-forward-regexp color-rg-regexp-position nil t)
+        (setq start (point))
+        (end-of-line)
+        (setq end (point))
+        (setq original-line-content (buffer-substring-no-properties start end)))
+      )
+    (if (string-equal change-line-content original-line-content)
+        (setq color-rg-changed-lines (remove change-line color-rg-changed-lines))
+      (add-to-list 'color-rg-changed-lines change-line))
+    ))
+
+(defun color-rg-kill-temp-buffer ()
+  (when (get-buffer color-rg-temp-buffer)
+    (kill-buffer color-rg-temp-buffer)
+    (setq color-rg-changed-lines nil)))
+
+(defun color-rg-clone-to-temp-buffer ()
+  (color-rg-kill-temp-buffer)
+  (with-current-buffer color-rg-buffer
+    (add-hook 'kill-buffer-hook 'color-rg-kill-temp-buffer nil t)
+    (generate-new-buffer color-rg-temp-buffer)
+    (append-to-buffer color-rg-temp-buffer (point-min) (point-max))
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg (&optional keyword directory)
@@ -438,6 +492,8 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-enable-edit-mode ()
   (interactive)
+  ;; Clone content to temp buffer.
+  (color-rg-clone-to-temp-buffer)
   ;; Update header-line.
   (set (make-local-variable 'edit-mode) "Edit")
   (color-rg-update-header-line)
@@ -462,7 +518,10 @@ This function is called from `compilation-filter-hook'."
           (end-of-line)
           (setq end (point))
           (put-text-property (1- start) end 'read-only nil)))
-      )))
+      ))
+  ;; Add change monitor.
+  (add-hook 'after-change-functions 'color-rg-after-change-function nil t)
+  )
 
 (defun color-rg-quit ()
   (interactive)
