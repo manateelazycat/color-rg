@@ -83,7 +83,6 @@
 
 ;;; Require
 
-
 ;;; Code:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OS Config ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (when (featurep 'cocoa)
@@ -153,6 +152,16 @@
 
 (defface color-rg-match
   '((t (:foreground "Gold3" :bold t)))
+  "Face for keyword match."
+  :group 'color-rg)
+
+(defface color-rg-position-mark-changed
+  '((t (:foreground "Gold3" :bold t)))
+  "Face for keyword match."
+  :group 'color-rg)
+
+(defface color-rg-position-mark-deleted
+  '((t (:foreground "Red3" :bold t)))
   "Face for keyword match."
   :group 'color-rg)
 
@@ -354,9 +363,44 @@ This function is called from `compilation-filter-hook'."
         (setq original-line-content (buffer-substring-no-properties start end)))
       )
     (if (string-equal change-line-content original-line-content)
-        (setq color-rg-changed-lines (remove change-line color-rg-changed-lines))
-      (add-to-list 'color-rg-changed-lines change-line))
+        (progn
+          (setq color-rg-changed-lines (remove change-line color-rg-changed-lines))
+          (color-rg-mark-position-clear change-line))
+      (add-to-list 'color-rg-changed-lines change-line)
+      (if (string-equal change-line-content "")
+          (color-rg-mark-position-deleted change-line)
+        (color-rg-mark-position-changed change-line)))
     ))
+
+(defun color-rg-mark-position-clear (line)
+  (save-excursion
+    (beginning-of-line)
+    (forward-char)
+    (dolist (overlay (overlays-at (point)))
+      (when (or (string-equal (overlay-get overlay 'overlay-type) "changed")
+                (string-equal (overlay-get overlay 'overlay-type) "deleted"))
+        (delete-overlay overlay)))))
+
+(defun color-rg-mark-position (line type face)
+  (save-excursion
+    (color-rg-mark-position-clear line)
+    ;; Create mark changed overlay if not exists.
+    (let (start end)
+      (save-excursion
+        (beginning-of-line)
+        (setq start (point))
+        (search-forward-regexp color-rg-regexp-position nil t)
+        (setq end (point))
+        (setq changed-overlay (make-overlay start end))
+        (overlay-put changed-overlay 'overlay-type type)
+        (overlay-put changed-overlay 'face face)
+        ))))
+
+(defun color-rg-mark-position-changed (line)
+  (color-rg-mark-position line "changed" 'color-rg-position-mark-changed))
+
+(defun color-rg-mark-position-deleted (line)
+  (color-rg-mark-position line "deleted" 'color-rg-position-mark-deleted))
 
 (defun color-rg-kill-temp-buffer ()
   (when (get-buffer color-rg-temp-buffer)
