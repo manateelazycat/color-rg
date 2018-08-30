@@ -549,6 +549,8 @@ This function is called from `compilation-filter-hook'."
         (query-replace search-keyword replace-text nil (point-min) (point-max))
         (color-rg-apply-changed)
         (color-rg-switch-to-view-mode)
+        ;; Set search keyword with new replace text.
+        (set (make-local-variable 'search-keyword) replace-text)
         ))))
 
 (defun color-rg-change-search-keyword ()
