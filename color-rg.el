@@ -626,7 +626,7 @@ This function is called from `compilation-filter-hook'."
         (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
       ;; Jump to match position.
       (goto-line match-line)
-      (goto-column (- match-column 1)))
+      (move-to-column (- match-column 1) t))
     ;; Keep cursor in search buffer's window.
     (select-window (get-buffer-window color-rg-buffer))
     ;; Ajust column position.
