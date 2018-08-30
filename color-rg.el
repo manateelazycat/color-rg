@@ -561,6 +561,7 @@ This function is called from `compilation-filter-hook'."
   (color-rg-clone-to-temp-buffer)
   ;; Update header-line.
   (set (make-local-variable 'edit-mode) "Edit")
+  (set (make-local-variable 'query-replace-skip-read-only) t)
   (color-rg-update-header-line)
   ;; Turn off readonly mode.
   (read-only-mode -1)
@@ -716,6 +717,7 @@ This function is called from `compilation-filter-hook'."
   (read-only-mode 1)
   (use-local-map nil)
   (use-local-map color-rg-mode-map)
+  (kill-local-variable 'query-replace-skip-read-only)
   ;; Message to user.
   (message (format "Apply %s lines" (length color-rg-changed-lines)))
   )
