@@ -746,10 +746,8 @@ This function is called from `compilation-filter-hook'."
         (let (match-file match-line changed-line-content)
           (setq changed-line-content (color-rg-get-line-content color-rg-buffer line))
           (with-current-buffer color-rg-buffer
-            ;; Goto changed line.
-            (goto-line line)
             ;; Get match file and line.
-            (beginning-of-line)
+            (goto-line line)
             (setq match-file (color-rg-get-match-file))
             (setq match-line (color-rg-get-match-line)))
           ;; Open file in other window.
@@ -761,7 +759,9 @@ This function is called from `compilation-filter-hook'."
           (kill-line)
           ;; Insert change line.
           (if (string-equal changed-line-content "")
+              ;; Kill empty line if line mark as deleted.
               (kill-line)
+            ;; Otherwise insert new line into file.
             (insert changed-line-content))
           )))
     ;; Restore window configuration before apply changed.
@@ -769,8 +769,7 @@ This function is called from `compilation-filter-hook'."
       (set-window-configuration color-rg-window-configuration-before-apply)
       (setq color-rg-window-configuration-before-apply nil))
     ;; Message to user.
-    (message (format "Apply %s lines" (length color-rg-changed-lines)))
-    )
+    (message (format "Apply %s lines" (length color-rg-changed-lines))))
   (color-rg-switch-to-view-mode))
 
 (provide 'color-rg)
