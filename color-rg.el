@@ -458,7 +458,7 @@ This function is called from `compilation-filter-hook'."
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun color-rg (&optional keyword directory)
+(defun color-rg-search-input (&optional keyword directory)
   (interactive)
   ;; Save window configuration before do search.
   (setq color-rg-window-configuration-before-search (current-window-configuration))
@@ -476,6 +476,20 @@ This function is called from `compilation-filter-hook'."
               directory
             default-directory)))
     (color-rg-search search-keyboard search-directory)))
+
+(defun color-rg-search-symbol ()
+  (interactive)
+  (color-rg (color-rg-pointer-string) default-directory))
+
+(defun color-rg-search-project ()
+  (interactive)
+  (require 'projectile)
+  (color-rg (color-rg-read-input) (projectile-project-root)))
+
+(defun color-rg-search-project-rails ()
+  (interactive)
+  (require 'projectile)
+  (color-rg (color-rg-read-input) (concat (projectile-project-root) "app")))
 
 (defun color-rg-jump-next-keyword ()
   (interactive)
