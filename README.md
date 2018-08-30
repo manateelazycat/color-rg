@@ -1,9 +1,9 @@
 <img src="./screenshot/color-rg.png">
 
 # What is color-rg?
-color-rg is search and refacotry tool base on ripgrep.
+color-rg is search and refactoring tool based on ripgrep.
 
-I'm a big fans of color-moccur.el, this extension's name is used for tribute color-moccur.el!
+I'm a big fan of color-moccur.el, this extension's name is used for tribute color-moccur.el!
 
 ## Installation
 
