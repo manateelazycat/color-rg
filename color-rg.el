@@ -378,6 +378,18 @@ This function is called from `compilation-filter-hook'."
     (beginning-of-line)
     (looking-at "[[:space:]]*$")))
 
+(defun color-rg-get-line-content (buffer line)
+  (with-current-buffer buffer
+    (save-excursion
+      (goto-line line)
+      (beginning-of-line)
+      (search-forward-regexp color-rg-regexp-position nil t)
+      (setq start (point))
+      (end-of-line)
+      (setq end (point))
+      (buffer-substring-no-properties start end))
+    ))
+
 (defun color-rg-after-change-function (beg end leng-before)
   ;; NOTE:
   ;; We should use `save-match-data' wrap function that hook in `after-change-functions'.
@@ -389,26 +401,8 @@ This function is called from `compilation-filter-hook'."
            start end
            change-line-content
            original-line-content)
-      (with-current-buffer color-rg-buffer
-        (save-excursion
-          (goto-line change-line)
-          (beginning-of-line)
-          (search-forward-regexp color-rg-regexp-position nil t)
-          (setq start (point))
-          (end-of-line)
-          (setq end (point))
-          (setq change-line-content (buffer-substring-no-properties start end)))
-        )
-      (with-current-buffer color-rg-temp-buffer
-        (save-excursion
-          (goto-line change-line)
-          (beginning-of-line)
-          (search-forward-regexp color-rg-regexp-position nil t)
-          (setq start (point))
-          (end-of-line)
-          (setq end (point))
-          (setq original-line-content (buffer-substring-no-properties start end)))
-        )
+      (setq changed-line-content (color-rg-get-line-content color-rg-buffer change-line))
+      (setq original-line-content (color-rg-get-line-content color-rg-temp-buffer change-line))
       (if (string-equal change-line-content original-line-content)
           (progn
             (setq color-rg-changed-lines (remove change-line color-rg-changed-lines))
@@ -735,16 +729,7 @@ This function is called from `compilation-filter-hook'."
       (setq end (point))
       (kill-region start end)
       ;; Get original line content.
-      (with-current-buffer color-rg-temp-buffer
-        (save-excursion
-          (goto-line change-line)
-          (beginning-of-line)
-          (search-forward-regexp color-rg-regexp-position nil t)
-          (setq start (point))
-          (end-of-line)
-          (setq end (point))
-          (setq original-line-content (buffer-substring-no-properties start end)))
-        )
+      (setq original-line-content (color-rg-get-line-content color-rg-temp-buffer change-line))
       ;; Insert original line content.
       (insert original-line-content)
       )))
@@ -759,16 +744,10 @@ This function is called from `compilation-filter-hook'."
     (save-excursion
       (dolist (line color-rg-changed-lines)
         (let (match-file match-line changed-line-content)
+          (setq changed-line-content (color-rg-get-line-content color-rg-buffer line))
           (with-current-buffer color-rg-buffer
             ;; Goto changed line.
             (goto-line line)
-            ;; Get changed content.
-            (beginning-of-line)
-            (search-forward-regexp color-rg-regexp-position nil t)
-            (setq start (point))
-            (end-of-line)
-            (setq end (point))
-            (setq changed-line-content (buffer-substring-no-properties start end))
             ;; Get match file and line.
             (beginning-of-line)
             (setq match-file (color-rg-get-match-file))
