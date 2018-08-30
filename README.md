@@ -37,6 +37,10 @@ Bind your favorite key to functions:
 | r          | Replace all matches                             |
 | s          | Re-search with new keyword                      |
 | d          | Re-search with new directory                    |
+| i          | Re-search include the ignore files              |
+| c          | Re-search with case sensitive                   |
+| t          | Re-search pattern as literal                    |
+| m          | Re-search with customized rg argument           |
 | e          | Enable edit mode                                |
 | q          | Quit                                            |
 

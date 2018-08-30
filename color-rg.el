@@ -203,7 +203,11 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "l") 'color-rg-jump-prev-file)
     (define-key map (kbd "RET") 'color-rg-open-file)
 
+    (define-key map (kbd "m") 'color-rg-change-search-customized)
+    (define-key map (kbd "i") 'color-rg-rerun-no-ignore)
     (define-key map (kbd "r") 'color-rg-replace-all-matches)
+    (define-key map (kbd "t") 'color-rg-rerun-literal)
+    (define-key map (kbd "c") 'color-rg-rerun-case-senstive)
     (define-key map (kbd "s") 'color-rg-change-search-keyword)
     (define-key map (kbd "d") 'color-rg-change-search-directory)
     (define-key map (kbd "e") 'color-rg-switch-to-edit-mode)
@@ -303,8 +307,12 @@ This function is called from `compilation-filter-hook'."
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun color-rg-search (keyword directory)
-  (let* ((search-command (format "rg %s %s --column --color=always" keyword directory)))
+(defun color-rg-search (keyword directory &optional argument)
+  (let* (
+         (rg-argument (if argument
+                          argument
+                        "--column --color=always --smart-case"))
+         (search-command (format "rg %s \'%s\' %s" rg-argument keyword directory)))
     ;; Erase or create search result.
     (if (get-buffer color-rg-buffer)
         (let ((inhibit-read-only t))
@@ -318,6 +326,7 @@ This function is called from `compilation-filter-hook'."
       ;; Start command.
       (compilation-start search-command 'color-rg-mode)
       ;; Set header line.
+      (set (make-local-variable 'search-argument) rg-argument)
       (set (make-local-variable 'search-keyword) keyword)
       (set (make-local-variable 'search-directory) directory)
       (set (make-local-variable 'edit-mode) "View")
@@ -481,7 +490,7 @@ This function is called from `compilation-filter-hook'."
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun color-rg-search-input (&optional keyword directory)
+(defun color-rg-search-input (&optional keyword directory argument)
   (interactive)
   ;; Save window configuration before do search.
   (setq color-rg-window-configuration-before-search (current-window-configuration))
@@ -497,8 +506,12 @@ This function is called from `compilation-filter-hook'."
          (search-directory
           (if directory
               directory
-            default-directory)))
-    (color-rg-search search-keyboard search-directory)))
+            default-directory))
+         (search-argument
+          (if argument
+              argument
+            "--column --color=always --smart-case")))
+    (color-rg-search search-keyboard search-directory search-argument)))
 
 (defun color-rg-search-symbol ()
   (interactive)
@@ -541,6 +554,42 @@ This function is called from `compilation-filter-hook'."
       (color-rg-switch-to-view-mode)
       (color-rg-search-input search-keyword new-directory)
       (set (make-local-variable 'search-directory) new-directory)
+      )))
+
+(defun color-rg-change-search-customized ()
+  (interactive)
+  (with-current-buffer color-rg-buffer
+    (let* ((new-argument (read-string (format "Re-search with new argument: ") search-argument)))
+      (color-rg-switch-to-view-mode)
+      (color-rg-search-input search-keyword search-directory new-argument)
+      (set (make-local-variable 'search-argument) new-argument)
+      )))
+
+(defun color-rg-rerun-literal ()
+  (interactive)
+  (with-current-buffer color-rg-buffer
+    (let* ((new-argument "--column --color=always --fixed-strings"))
+      (color-rg-switch-to-view-mode)
+      (color-rg-search-input search-keyword search-directory new-argument)
+      (set (make-local-variable 'search-argument) new-argument)
+      )))
+
+(defun color-rg-rerun-no-ignore ()
+  (interactive)
+  (with-current-buffer color-rg-buffer
+    (let* ((new-argument "--column --color=always --no-ignore"))
+      (color-rg-switch-to-view-mode)
+      (color-rg-search-input search-keyword search-directory new-argument)
+      (set (make-local-variable 'search-argument) new-argument)
+      )))
+
+(defun color-rg-rerun-case-senstive ()
+  (interactive)
+  (with-current-buffer color-rg-buffer
+    (let* ((new-argument "--column --color=always --case-sensitive"))
+      (color-rg-switch-to-view-mode)
+      (color-rg-search-input search-keyword search-directory new-argument)
+      (set (make-local-variable 'search-argument) new-argument)
       )))
 
 (defun color-rg-jump-next-keyword ()
