@@ -203,9 +203,10 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "l") 'color-rg-jump-prev-file)
     (define-key map (kbd "RET") 'color-rg-open-file)
 
+    (define-key map (kbd "r") 'color-rg-replace-all-matches)
     (define-key map (kbd "s") 'color-rg-change-search-keyword)
     (define-key map (kbd "d") 'color-rg-change-search-directory)
-    (define-key map (kbd "e") 'color-rg-enable-edit-mode)
+    (define-key map (kbd "e") 'color-rg-switch-to-edit-mode)
     (define-key map (kbd "q") 'color-rg-quit)
     map)
   "Keymap used by `color-rg-mode'.")
@@ -513,6 +514,17 @@ This function is called from `compilation-filter-hook'."
   (require 'projectile)
   (color-rg-search-input (color-rg-read-input) (concat (projectile-project-root) "app")))
 
+(defun color-rg-replace-all-matches ()
+  (interactive)
+  (save-excursion
+    (with-current-buffer color-rg-buffer
+      (let* ((replace-text (read-string (format "Replace '%s' all matches with: " search-keyword) search-keyword)))
+        (color-rg-switch-to-edit-mode)
+        (query-replace search-keyword replace-text nil (point-min) (point-max))
+        (color-rg-apply-changed)
+        (color-rg-switch-to-view-mode)
+        ))))
+
 (defun color-rg-change-search-keyword ()
   (interactive)
   (with-current-buffer color-rg-buffer
@@ -623,7 +635,7 @@ This function is called from `compilation-filter-hook'."
     (forward-char (- match-column 1))
     ))
 
-(defun color-rg-enable-edit-mode ()
+(defun color-rg-switch-to-edit-mode ()
   (interactive)
   ;; Clone content to temp buffer.
   (color-rg-clone-to-temp-buffer)

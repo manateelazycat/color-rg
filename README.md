@@ -34,6 +34,7 @@ Bind your favorite key to functions:
 | h          | Jump to next match file                         |
 | l          | Jump to previous match file                     |
 | RET        | Open file relative to match line                |
+| r          | Replace all matches                             |
 | s          | Re-search with new keyword                      |
 | d          | Re-search with new directory                    |
 | e          | Enable edit mode                                |
