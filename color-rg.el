@@ -426,7 +426,6 @@ This function is called from `compilation-filter-hook'."
     (let* ((change-line (save-excursion
                           (goto-char beg)
                           (line-number-at-pos)))
-           start end
            change-line-content
            original-line-content)
       (setq changed-line-content (color-rg-get-line-content color-rg-buffer change-line))
