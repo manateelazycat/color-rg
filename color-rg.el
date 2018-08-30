@@ -407,6 +407,17 @@ This function is called from `compilation-filter-hook'."
       (buffer-substring start end))
     ))
 
+(defun color-rg-get-row-column-position ()
+  (let* ((search-bound
+          (save-excursion
+            (end-of-line)
+            (point)))
+         (row-column-position
+          (save-excursion
+            (beginning-of-line)
+            (search-forward-regexp color-rg-regexp-position search-bound t))))
+    row-column-position))
+
 (defun color-rg-after-change-function (beg end leng-before)
   ;; NOTE:
   ;; We should use `save-match-data' wrap function that hook in `after-change-functions'.
@@ -740,28 +751,14 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-beginning-of-line ()
   (interactive)
-  (let* ((search-bound
-          (save-excursion
-            (end-of-line)
-            (point)))
-         (row-column-position
-          (save-excursion
-            (beginning-of-line)
-            (search-forward-regexp color-rg-regexp-position search-bound t))))
+  (let* ((row-column-position (color-rg-get-row-column-position)))
     (if row-column-position
         (goto-char row-column-position)
       (move-beginning-of-line 1))))
 
 (defun color-rg-delete-line ()
   (interactive)
-  (let* ((search-bound
-          (save-excursion
-            (end-of-line)
-            (point)))
-         (row-column-position
-          (save-excursion
-            (beginning-of-line)
-            (search-forward-regexp color-rg-regexp-position search-bound t))))
+  (let* ((row-column-position (color-rg-get-row-column-position)))
     (when row-column-position
       (setq start row-column-position)
       (end-of-line)
