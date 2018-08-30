@@ -695,7 +695,9 @@ This function is called from `compilation-filter-hook'."
     ;; Ajust column position.
     (beginning-of-line)
     (search-forward-regexp color-rg-regexp-position)
-    (forward-char (- match-column 1))
+    ;; Forward to column if current line is not empty line (delete by `color-rg-delete-line').
+    (unless (looking-at "[[:space:]]*$")
+      (forward-char (- match-column 1)))
     ))
 
 (defun color-rg-switch-to-edit-mode ()
