@@ -156,22 +156,26 @@
   :group 'color-rg)
 
 (defface color-rg-position-mark-changed
-  '((t (:foreground "Gold3" :bold t)))
+  '((t (:foreground "SystemOrangeColor" :bold t)))
   "Face for keyword match."
   :group 'color-rg)
 
 (defface color-rg-position-mark-deleted
-  '((t (:foreground "Red3" :bold t)))
+  '((t (:foreground "SystemRedColor" :bold t)))
   "Face for keyword match."
   :group 'color-rg)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar color-rg-temp-buffers nil
-  "The temp buffers use to kill temp buffer after quit color-rg.")
+(defvar color-rg-temp-visit-buffers nil
+  "The temp visit buffers use to kill temp buffer after quit color-rg.")
 
-(defvar color-rg-window-configuration nil
+(defvar color-rg-window-configuration-before-search nil
   "Save window configuration before search,
 used to restore window configuration after finish search.")
+
+(defvar color-rg-window-configuration-before-apply nil
+  "Save window configuration before apply changed,
+used to restore window configuration after apply changed.")
 
 (defvar color-rg-hit-count 0
   "Search keyword hit counter.")
@@ -202,15 +206,25 @@ used to restore window configuration after finish search.")
     map)
   "Keymap used by `color-rg-mode'.")
 
+(defvar color-rg-mode-edit-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-a") 'color-rg-beginning-of-line)
+    (define-key map (kbd "C-c C-d") 'color-rg-delete-line)
+    (define-key map (kbd "C-c C-r") 'color-rg-recover-line)
+    (define-key map (kbd "C-c C-c") 'color-rg-apply-changed)
+    map)
+  "Edit keymap used by `color-rg-mode'.")
+
 (define-derived-mode color-rg-mode text-mode "color-rg"
   (interactive)
   (kill-all-local-variables)
   (setq major-mode 'color-rg-mode)
   (setq mode-name "color-rg")
+  (read-only-mode 1)
   (color-rg-highlight-keywords)
   (use-local-map color-rg-mode-map)
-  (run-hooks 'color-rg-mode-hook)
   (add-hook 'compilation-filter-hook 'color-rg-filter nil t)
+  (run-hooks 'color-rg-mode-hook)
   )
 
 (defun color-rg-highlight-keywords ()
@@ -292,7 +306,6 @@ This function is called from `compilation-filter-hook'."
       (set (make-local-variable 'search-directory) directory)
       (set (make-local-variable 'edit-mode) "View")
       (color-rg-update-header-line)
-      (read-only-mode 1)
       )
     ;; Pop search buffer.
     (pop-to-buffer color-rg-buffer)
@@ -323,6 +336,19 @@ This function is called from `compilation-filter-hook'."
   (save-excursion
     (end-of-line)
     (search-forward-regexp regexp nil t)))
+
+(defun color-rg-get-match-file ()
+  (save-excursion
+    (search-backward-regexp color-rg-regexp-file nil t)
+    (string-remove-suffix "\n" (buffer-substring-no-properties (beginning-of-thing 'line) (end-of-thing 'line)))))
+
+(defun color-rg-get-match-line ()
+  (beginning-of-line)
+  (string-to-number (buffer-substring-no-properties (beginning-of-thing 'symbol) (end-of-thing 'symbol))))
+
+(defun color-rg-get-match-column ()
+  (search-forward ":")
+  (string-to-number (buffer-substring-no-properties (beginning-of-thing 'symbol) (end-of-thing 'symbol))))
 
 (defun color-rg-get-match-buffer (filepath)
   (catch 'find-match
@@ -375,6 +401,7 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-mark-position-clear (line)
   (save-excursion
+    (goto-line line)
     (beginning-of-line)
     (forward-char)
     (dolist (overlay (overlays-at (point)))
@@ -390,7 +417,7 @@ This function is called from `compilation-filter-hook'."
       (save-excursion
         (beginning-of-line)
         (setq start (point))
-        (search-forward-regexp color-rg-regexp-position nil t)
+        (end-of-line)
         (setq end (point))
         (setq changed-overlay (make-overlay start end))
         (overlay-put changed-overlay 'overlay-type type)
@@ -420,7 +447,7 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg (&optional keyword directory)
   (interactive)
   ;; Save window configuration before do search.
-  (setq color-rg-window-configuration (current-window-configuration))
+  (setq color-rg-window-configuration-before-search (current-window-configuration))
   ;; Set `enable-local-variables' to :safe, avoid emacs ask annoyingly question when open file by color-rg.
   (setq enable-local-variables :safe)
   ;; Reset hit count.
@@ -507,23 +534,16 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-open-file ()
   (interactive)
-  (let* ((match-file
-          (save-excursion
-            (search-backward-regexp color-rg-regexp-file nil t)
-            (string-remove-suffix "\n" (buffer-substring-no-properties (beginning-of-thing 'line) (end-of-thing 'line)))))
-         (match-line (progn
-                       (beginning-of-line)
-                       (string-to-number (buffer-substring-no-properties (beginning-of-thing 'symbol) (end-of-thing 'symbol)))))
-         (match-column (progn
-                         (search-forward ":")
-                         (string-to-number (buffer-substring-no-properties (beginning-of-thing 'symbol) (end-of-thing 'symbol)))))
+  (let* ((match-file (color-rg-get-match-file))
+         (match-line (color-rg-get-match-line))
+         (match-column (color-rg-get-match-column))
          (match-buffer (color-rg-get-match-buffer match-file)))
     (save-excursion
       ;; Open file in other window.
       (find-file-other-window match-file)
-      ;; Push to temp list if file's buffer is not exist.
+      ;; Add to temp list if file's buffer is not exist.
       (unless match-buffer
-        (push (current-buffer) color-rg-temp-buffers))
+        (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
       ;; Jump to match position.
       (goto-line match-line)
       (goto-column (- match-column 1)))
@@ -546,6 +566,8 @@ This function is called from `compilation-filter-hook'."
   (read-only-mode -1)
   ;; Clean keymap.
   (use-local-map nil)
+  ;; Load edit keymap.
+  (use-local-map color-rg-mode-edit-map)
   ;; Set edit area.
   (let (start end)
     ;; Make all buffer with readonly text property.
@@ -566,20 +588,22 @@ This function is called from `compilation-filter-hook'."
       ))
   ;; Add change monitor.
   (add-hook 'after-change-functions 'color-rg-after-change-function nil t)
+  ;; Message to user.
+  (message "Switch to edit mode")
   )
 
 (defun color-rg-quit ()
   (interactive)
   ;; Kill temp buffer open by color-rg.
-  (dolist (temp-buffer color-rg-temp-buffers)
+  (dolist (temp-buffer color-rg-temp-visit-buffers)
     (kill-buffer temp-buffer))
-  (setq color-rg-temp-buffers nil)
+  (setq color-rg-temp-visit-buffers nil)
   ;; Kill search buffer.
   (kill-buffer color-rg-buffer)
   ;; Restore window configuration before search.
-  (when color-rg-window-configuration
-    (set-window-configuration color-rg-window-configuration)
-    (setq color-rg-window-configuration nil)))
+  (when color-rg-window-configuration-before-search
+    (set-window-configuration color-rg-window-configuration-before-search)
+    (setq color-rg-window-configuration-before-search nil)))
 
 (defun color-rg-beginning-of-line ()
   (interactive)
@@ -594,6 +618,107 @@ This function is called from `compilation-filter-hook'."
     (if row-column-position
         (goto-char row-column-position)
       (move-beginning-of-line 1))))
+
+(defun color-rg-delete-line ()
+  (interactive)
+  (let* ((search-bound
+          (save-excursion
+            (end-of-line)
+            (point)))
+         (row-column-position
+          (save-excursion
+            (beginning-of-line)
+            (search-forward-regexp color-rg-regexp-position search-bound t))))
+    (when row-column-position
+      (setq start row-column-position)
+      (end-of-line)
+      (setq end (point))
+      (kill-region start end)
+      )))
+
+(defun color-rg-recover-line ()
+  (interactive)
+  (let* ((search-bound
+          (save-excursion
+            (end-of-line)
+            (point)))
+         (row-column-position
+          (save-excursion
+            (beginning-of-line)
+            (search-forward-regexp color-rg-regexp-position search-bound t)))
+         (change-line (line-number-at-pos)))
+    (when row-column-position
+      ;; Delete current line.
+      (setq start row-column-position)
+      (end-of-line)
+      (setq end (point))
+      (kill-region start end)
+      ;; Get original line content.
+      (with-current-buffer color-rg-temp-buffer
+        (save-excursion
+          (goto-line change-line)
+          (beginning-of-line)
+          (search-forward-regexp color-rg-regexp-position nil t)
+          (setq start (point))
+          (end-of-line)
+          (setq end (point))
+          (setq original-line-content (buffer-substring-no-properties start end)))
+        )
+      ;; Insert original line content.
+      (insert original-line-content)
+      )))
+
+(defun color-rg-apply-changed ()
+  (interactive)
+  ;; Save window configuration before do apply.
+  (setq color-rg-window-configuration-before-apply (current-window-configuration))
+  ;; Apply changed.
+  (save-excursion
+    (dolist (line color-rg-changed-lines)
+      (let (match-file match-line changed-line-content)
+        (with-current-buffer color-rg-buffer
+          ;; Goto changed line.
+          (goto-line line)
+          ;; Get changed content.
+          (beginning-of-line)
+          (search-forward-regexp color-rg-regexp-position nil t)
+          (setq start (point))
+          (end-of-line)
+          (setq end (point))
+          (setq changed-line-content (buffer-substring-no-properties start end))
+          ;; Get match file and line.
+          (beginning-of-line)
+          (setq match-file (color-rg-get-match-file))
+          (setq match-line (color-rg-get-match-line)))
+        ;; Open file in other window.
+        (find-file match-file)
+        ;; Remove from temp list if file's buffer is exist.
+        (setq color-rg-temp-visit-buffers (remove (current-buffer) color-rg-temp-visit-buffers))
+        ;; Kill target line.
+        (goto-line match-line)
+        (kill-line)
+        ;; Insert change line.
+        (if (string-equal changed-line-content "")
+            (kill-line)
+          (insert changed-line-content))
+        )))
+  ;; Restore window configuration before apply changed.
+  (when color-rg-window-configuration-before-apply
+    (set-window-configuration color-rg-window-configuration-before-apply)
+    (setq color-rg-window-configuration-before-apply nil))
+  ;; Do clean work.
+  (dolist (line color-rg-changed-lines)
+    (color-rg-mark-position-clear line))
+  (setq color-rg-changed-lines nil)
+  (color-rg-kill-temp-buffer)
+  (remove-hook 'after-change-functions 'color-rg-after-change-function t)
+  ;; Switch to view mode.
+  (read-only-mode 1)
+  (use-local-map nil)
+  (use-local-map color-rg-mode-map)
+  ;; Message to user.
+  (message (format "Apply %s lines" (length color-rg-changed-lines)))
+  )
 
 (provide 'color-rg)
 
