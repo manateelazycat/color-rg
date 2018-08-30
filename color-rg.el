@@ -771,26 +771,8 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-recover-line ()
   (interactive)
-  (let* ((search-bound
-          (save-excursion
-            (end-of-line)
-            (point)))
-         (row-column-position
-          (save-excursion
-            (beginning-of-line)
-            (search-forward-regexp color-rg-regexp-position search-bound t)))
-         (change-line (line-number-at-pos)))
-    (when row-column-position
-      ;; Delete current line.
-      (setq start row-column-position)
-      (end-of-line)
-      (setq end (point))
-      (kill-region start end)
-      ;; Get original line content.
-      (setq original-line-content (color-rg-get-line-content color-rg-temp-buffer change-line))
-      ;; Insert original line content.
-      (insert original-line-content)
-      )))
+  (color-rg-delete-line)
+  (insert (color-rg-get-line-content color-rg-temp-buffer (line-number-at-pos))))
 
 (defun color-rg-apply-changed ()
   (interactive)
