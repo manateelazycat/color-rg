@@ -35,6 +35,7 @@ Bind your favorite key to functions:
 | l          | Jump to previous match file                     |
 | RET        | Open file relative to match line                |
 | r          | Replace all matches                             |
+| f          | Filter results with regexp                      |
 | s          | Re-search with new keyword                      |
 | d          | Re-search with new directory                    |
 | i          | Re-search include the ignore files              |

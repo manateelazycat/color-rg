@@ -214,8 +214,9 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "RET") 'color-rg-open-file)
 
     (define-key map (kbd "m") 'color-rg-change-search-customized)
-    (define-key map (kbd "i") 'color-rg-rerun-no-ignore)
     (define-key map (kbd "r") 'color-rg-replace-all-matches)
+    (define-key map (kbd "f") 'color-rg-filter-results)
+    (define-key map (kbd "i") 'color-rg-rerun-no-ignore)
     (define-key map (kbd "t") 'color-rg-rerun-literal)
     (define-key map (kbd "c") 'color-rg-rerun-case-senstive)
     (define-key map (kbd "s") 'color-rg-change-search-keyword)
@@ -556,6 +557,27 @@ This function is called from `compilation-filter-hook'."
         (color-rg-switch-to-view-mode)
         ;; Set search keyword with new replace text.
         (set (make-local-variable 'search-keyword) replace-text)
+        ))))
+
+(defun color-rg-filter-results ()
+  (interactive)
+  (let ((filter-regexp (read-string (format "Filter result with regexp: "))))
+    (save-excursion
+      (with-current-buffer color-rg-buffer
+        (setq remove-counter 0)
+        (read-only-mode -1)
+        (goto-char (point-min))
+        (while (setq start (search-forward-regexp color-rg-regexp-position nil t))
+          (setq line-content (color-rg-get-line-content color-rg-buffer (line-number-at-pos)))
+          (unless (string-match filter-regexp line-content)
+            (beginning-of-line)
+            (kill-line)
+            (kill-line)
+            (setq remove-counter (+ 1 remove-counter))
+            )
+          )
+        (read-only-mode 1)
+        (message (format "Remove %s lines not match regexp '%s'." remove-counter filter-regexp))
         ))))
 
 (defun color-rg-change-search-keyword ()
