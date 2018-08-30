@@ -135,6 +135,11 @@
   "Face for header line edit mode."
   :group 'color-rg)
 
+(defface color-rg-command
+  '((t (:foreground "Gray30" :bold t)))
+  "Face for filepath."
+  :group 'color-rg)
+
 (defface color-rg-file
   '((t (:foreground "DodgerBlue" :bold t)))
   "Face for filepath."
@@ -255,6 +260,7 @@ used to restore window configuration after apply changed.")
   (font-lock-add-keywords
    nil
    '(
+     ("^rg\\s-.*" . 'color-rg-command)
      ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 1 'color-rg-line-number)
      ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 2 'color-rg-position-splitter)
      ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 3 'color-rg-column-number)
