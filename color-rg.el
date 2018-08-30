@@ -198,6 +198,7 @@ used to restore window configuration after finish search.")
     (define-key map (kbd "RET") 'color-rg-open-file)
     (define-key map (kbd "e") 'color-rg-enable-edit-mode)
     (define-key map (kbd "q") 'color-rg-quit)
+    (define-key map (kbd "C-a") 'color-rg-beginning-of-line)
     map)
   "Keymap used by `color-rg-mode'.")
 
@@ -579,6 +580,20 @@ This function is called from `compilation-filter-hook'."
   (when color-rg-window-configuration
     (set-window-configuration color-rg-window-configuration)
     (setq color-rg-window-configuration nil)))
+
+(defun color-rg-beginning-of-line ()
+  (interactive)
+  (let* ((search-bound
+          (save-excursion
+            (end-of-line)
+            (point)))
+         (row-column-position
+          (save-excursion
+            (beginning-of-line)
+            (search-forward-regexp color-rg-regexp-position search-bound t))))
+    (if row-column-position
+        (goto-char row-column-position)
+      (move-beginning-of-line 1))))
 
 (provide 'color-rg)
 
