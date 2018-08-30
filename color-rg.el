@@ -496,7 +496,6 @@ This function is called from `compilation-filter-hook'."
     (remove-hook 'after-change-functions 'color-rg-after-change-function t)
     ;; Switch to view mode.
     (read-only-mode 1)
-    (use-local-map nil)
     (use-local-map color-rg-mode-map)
     (kill-local-variable 'query-replace-skip-read-only)
     (set (make-local-variable 'edit-mode) "View")
@@ -709,7 +708,6 @@ This function is called from `compilation-filter-hook'."
   ;; Turn off readonly mode.
   (read-only-mode -1)
   ;; Clean keymap.
-  (use-local-map nil)
   ;; Load edit keymap.
   (use-local-map color-rg-mode-edit-map)
   ;; Set edit area.
