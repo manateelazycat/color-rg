@@ -307,8 +307,11 @@ This function is called from `compilation-filter-hook'."
   (let* ((search-command (format "rg %s %s --column --color=always" keyword directory)))
     ;; Erase or create search result.
     (if (get-buffer color-rg-buffer)
-        (let ((inhibit-read-only t))
-          (with-current-buffer color-rg-buffer
+        (with-current-buffer color-rg-buffer
+          (let ((inhibit-read-only t))
+            ;; Switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
+            (color-rg-mode)
+            ;; Erase buffer content.
             (read-only-mode -1)
             (erase-buffer)))
       (generate-new-buffer color-rg-buffer))
