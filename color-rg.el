@@ -304,7 +304,7 @@ This function is called from `compilation-filter-hook'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search (keyword directory)
-  (let* ((search-command (format "rg --regexp \"%s\" %s --column --color=always" keyword directory)))
+  (let* ((search-command (format "rg %s %s --column --color=always" keyword directory)))
     ;; Erase or create search result.
     (if (get-buffer color-rg-buffer)
         (with-current-buffer color-rg-buffer
