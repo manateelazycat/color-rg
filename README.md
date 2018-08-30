@@ -5,7 +5,7 @@ color-rg is search and refacotry tool base on ripgrep.
 
 I'm a big fans of color-moccur.el, this extension's name is used for tribute color-moccur.el!
 
-# Installation
+## Installation
 
 Put `color-rg.el` to your load-path.
 The load-path is usually ~/elisp/.
@@ -24,7 +24,7 @@ Bind your favorite key to functions:
 | color-rg-search-project       | Search user's input in project               |
 | color-rg-search-project-rails | Search user's input in rails project         |
 
-# Keymap for view mode
+### Keymap for view mode
 
 | Key        | Description                                     |
 | :--------: | :----                                           |
@@ -40,7 +40,7 @@ Bind your favorite key to functions:
 | e          | Enable edit mode                                |
 | q          | Quit                                            |
 
-# Keymap for edit mode
+### Keymap for edit mode
 
 | Key        | Description                                     |
 | :--------: | :----                                           |
