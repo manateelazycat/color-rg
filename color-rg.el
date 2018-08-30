@@ -363,41 +363,45 @@ This function is called from `compilation-filter-hook'."
     (looking-at "[[:space:]]*$")))
 
 (defun color-rg-after-change-function (beg end leng-before)
-  (let* ((change-line (save-excursion
-                        (goto-char beg)
-                        (line-number-at-pos)))
-         start end
-         change-line-content
-         original-line-content)
-    (with-current-buffer color-rg-buffer
-      (save-excursion
-        (goto-line change-line)
-        (beginning-of-line)
-        (search-forward-regexp color-rg-regexp-position nil t)
-        (setq start (point))
-        (end-of-line)
-        (setq end (point))
-        (setq change-line-content (buffer-substring-no-properties start end)))
-      )
-    (with-current-buffer color-rg-temp-buffer
-      (save-excursion
-        (goto-line change-line)
-        (beginning-of-line)
-        (search-forward-regexp color-rg-regexp-position nil t)
-        (setq start (point))
-        (end-of-line)
-        (setq end (point))
-        (setq original-line-content (buffer-substring-no-properties start end)))
-      )
-    (if (string-equal change-line-content original-line-content)
-        (progn
-          (setq color-rg-changed-lines (remove change-line color-rg-changed-lines))
-          (color-rg-mark-position-clear change-line))
-      (add-to-list 'color-rg-changed-lines change-line)
-      (if (string-equal change-line-content "")
-          (color-rg-mark-position-deleted change-line)
-        (color-rg-mark-position-changed change-line)))
-    ))
+  ;; NOTE:
+  ;; We should use `save-match-data' wrap function that hook in `after-change-functions'.
+  ;; Otherwise will got error: "replace-match-maybe-edit: Match data clobbered by buffer modification hooks"
+  (save-match-data
+    (let* ((change-line (save-excursion
+                          (goto-char beg)
+                          (line-number-at-pos)))
+           start end
+           change-line-content
+           original-line-content)
+      (with-current-buffer color-rg-buffer
+        (save-excursion
+          (goto-line change-line)
+          (beginning-of-line)
+          (search-forward-regexp color-rg-regexp-position nil t)
+          (setq start (point))
+          (end-of-line)
+          (setq end (point))
+          (setq change-line-content (buffer-substring-no-properties start end)))
+        )
+      (with-current-buffer color-rg-temp-buffer
+        (save-excursion
+          (goto-line change-line)
+          (beginning-of-line)
+          (search-forward-regexp color-rg-regexp-position nil t)
+          (setq start (point))
+          (end-of-line)
+          (setq end (point))
+          (setq original-line-content (buffer-substring-no-properties start end)))
+        )
+      (if (string-equal change-line-content original-line-content)
+          (progn
+            (setq color-rg-changed-lines (remove change-line color-rg-changed-lines))
+            (color-rg-mark-position-clear change-line))
+        (add-to-list 'color-rg-changed-lines change-line)
+        (if (string-equal change-line-content "")
+            (color-rg-mark-position-deleted change-line)
+          (color-rg-mark-position-changed change-line)))
+      )))
 
 (defun color-rg-mark-position-clear (line)
   (save-excursion
