@@ -479,17 +479,17 @@ This function is called from `compilation-filter-hook'."
 
 (defun color-rg-search-symbol ()
   (interactive)
-  (color-rg (color-rg-pointer-string) default-directory))
+  (color-rg-search-input (color-rg-pointer-string) default-directory))
 
 (defun color-rg-search-project ()
   (interactive)
   (require 'projectile)
-  (color-rg (color-rg-read-input) (projectile-project-root)))
+  (color-rg-search-input (color-rg-read-input) (projectile-project-root)))
 
 (defun color-rg-search-project-rails ()
   (interactive)
   (require 'projectile)
-  (color-rg (color-rg-read-input) (concat (projectile-project-root) "app")))
+  (color-rg-search-input (color-rg-read-input) (concat (projectile-project-root) "app")))
 
 (defun color-rg-jump-next-keyword ()
   (interactive)
