@@ -582,7 +582,7 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-rerun-literal ()
   (interactive)
   (with-current-buffer color-rg-buffer
-    (let* ((new-argument "--column --color=always --fixed-strings"))
+    (let* ((new-argument "--column --color=always --smart-case --fixed-strings"))
       (color-rg-switch-to-view-mode)
       (color-rg-search-input search-keyword search-directory new-argument)
       (set (make-local-variable 'search-argument) new-argument)
@@ -591,7 +591,7 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-rerun-no-ignore ()
   (interactive)
   (with-current-buffer color-rg-buffer
-    (let* ((new-argument "--column --color=always --no-ignore"))
+    (let* ((new-argument "--column --color=always --smart-case --no-ignore"))
       (color-rg-switch-to-view-mode)
       (color-rg-search-input search-keyword search-directory new-argument)
       (set (make-local-variable 'search-argument) new-argument)
