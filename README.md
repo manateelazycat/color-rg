@@ -18,7 +18,7 @@ It's set in your ~/.emacs like this:
 Bind your favorite key to functions:
 
 | Function                      | Description                                  |
-| :--------:                    | :----:                                       |
+| :--------                     | :----                                        |
 | color-rg-search-input         | Search user's input with current directory   |
 | color-rg-search-symbol        | Search current symbol with current directory |
 | color-rg-search-project       | Search user's input in project               |
@@ -27,7 +27,7 @@ Bind your favorite key to functions:
 # Keymap for view mode
 
 | Key        | Description                                     |
-| :--------: | :----:                                          |
+| :--------: | :----                                           |
 | C-a        | Jump to first editable position of current line |
 | j          | Jump to next match keyword                      |
 | k          | Jump to previous match keyword                  |
@@ -40,7 +40,7 @@ Bind your favorite key to functions:
 # Keymap for edit mode
 
 | Key        | Description                                     |
-| :--------: | :----:                                          |
+| :--------: | :----                                           |
 | C-a        | Jump to first editable position of current line |
 | C-c C-j    | Jump to next match keyword                      |
 | C-c C-k    | Jump to previous match keyword                  |
