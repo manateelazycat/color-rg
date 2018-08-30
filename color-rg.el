@@ -308,11 +308,10 @@ This function is called from `compilation-filter-hook'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search (keyword directory &optional argument)
-  (let* (
-         (rg-argument (if argument
+  (let* ((rg-argument (if argument
                           argument
-                        "--column --color=always --smart-case"))
-         (search-command (format "rg %s \'%s\' %s" rg-argument keyword directory)))
+                        "--column --color=always --smart-case --regexp"))
+         (search-command (format "rg %s \"%s\" %s" rg-argument keyword directory)))
     ;; Erase or create search result.
     (if (get-buffer color-rg-buffer)
         (with-current-buffer color-rg-buffer
@@ -508,7 +507,7 @@ This function is called from `compilation-filter-hook'."
          (search-argument
           (if argument
               argument
-            "--column --color=always --smart-case")))
+            "--column --color=always --smart-case --regexp")))
     (color-rg-search search-keyboard search-directory search-argument)))
 
 (defun color-rg-search-symbol ()
