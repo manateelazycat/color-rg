@@ -40,7 +40,7 @@
 ;;; Commentary:
 ;;
 ;; color-rg is search and refactoring tool based on ripgrep.
-
+;;
 ;; I'm a big fan of color-moccur.el, this extension's name is used for tribute color-moccur.el!
 ;;
 
@@ -704,6 +704,7 @@ This function is called from `compilation-filter-hook'."
   (color-rg-clone-to-temp-buffer)
   ;; Update header-line.
   (set (make-local-variable 'edit-mode) "Edit")
+  ;; Set `query-replace-skip-read-only' to avoid read-only error when do `query-replace'.
   (set (make-local-variable 'query-replace-skip-read-only) t)
   (color-rg-update-header-line)
   ;; Turn off readonly mode.
