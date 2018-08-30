@@ -387,7 +387,7 @@ This function is called from `compilation-filter-hook'."
       (setq start (point))
       (end-of-line)
       (setq end (point))
-      (buffer-substring-no-properties start end))
+      (buffer-substring start end))
     ))
 
 (defun color-rg-after-change-function (beg end leng-before)
@@ -403,12 +403,12 @@ This function is called from `compilation-filter-hook'."
            original-line-content)
       (setq changed-line-content (color-rg-get-line-content color-rg-buffer change-line))
       (setq original-line-content (color-rg-get-line-content color-rg-temp-buffer change-line))
-      (if (string-equal change-line-content original-line-content)
+      (if (string-equal changed-line-content original-line-content)
           (progn
             (setq color-rg-changed-lines (remove change-line color-rg-changed-lines))
             (color-rg-mark-position-clear change-line))
         (add-to-list 'color-rg-changed-lines change-line)
-        (if (string-equal change-line-content "")
+        (if (string-equal changed-line-content "")
             (color-rg-mark-position-deleted change-line)
           (color-rg-mark-position-changed change-line)))
       )))
@@ -421,7 +421,8 @@ This function is called from `compilation-filter-hook'."
     (dolist (overlay (overlays-at (point)))
       (when (or (string-equal (overlay-get overlay 'overlay-type) "changed")
                 (string-equal (overlay-get overlay 'overlay-type) "deleted"))
-        (delete-overlay overlay)))))
+        (delete-overlay overlay)
+        ))))
 
 (defun color-rg-mark-position (line type face)
   (save-excursion
