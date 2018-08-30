@@ -105,6 +105,11 @@
   :type 'string
   :group 'color-rg)
 
+(defcustom color-rg-default-argument "--column --color=always --smart-case --regexp"
+  "The default search argument to ripgrep."
+  :type 'string
+  :group 'color-rg)
+
 (defcustom color-rg-mode-hook '()
   "color-rg mode hook."
   :type 'hook
@@ -310,7 +315,8 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-search (keyword directory &optional argument)
   (let* ((rg-argument (if argument
                           argument
-                        "--column --color=always --smart-case --regexp"))
+                        color-rg-default-argument
+                        ))
          (search-command (format "rg %s \"%s\" %s" rg-argument keyword directory)))
     ;; Erase or create search result.
     (if (get-buffer color-rg-buffer)
@@ -507,7 +513,7 @@ This function is called from `compilation-filter-hook'."
          (search-argument
           (if argument
               argument
-            "--column --color=always --smart-case --regexp")))
+            color-rg-default-argument)))
     (color-rg-search search-keyboard search-directory search-argument)))
 
 (defun color-rg-search-symbol ()
