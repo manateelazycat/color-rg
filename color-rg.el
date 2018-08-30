@@ -161,7 +161,7 @@
   :group 'color-rg)
 
 (defface color-rg-position-mark-changed
-  '((t (:foreground "SystemOrangeColor" :background "gray20" :bold t)))
+  '((t (:foreground "White" :background "SystemBlueColor" :bold t)))
   "Face for keyword match."
   :group 'color-rg)
 
