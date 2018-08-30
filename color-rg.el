@@ -39,9 +39,9 @@
 
 ;;; Commentary:
 ;;
-;; Search and refacotry code with rg.
-;;
-;; I'm a big fans of color-moccur.el, this extension is used for tribute color-moccur.el !!!
+;; color-rg is search and refactoring tool based on ripgrep.
+
+;; I'm a big fan of color-moccur.el, this extension's name is used for tribute color-moccur.el!
 ;;
 
 ;;; Installation:
