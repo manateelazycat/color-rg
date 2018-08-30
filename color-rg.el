@@ -203,6 +203,8 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "l") 'color-rg-jump-prev-file)
     (define-key map (kbd "RET") 'color-rg-open-file)
 
+    (define-key map (kbd "s") 'color-rg-change-search-keyword)
+    (define-key map (kbd "d") 'color-rg-change-search-directory)
     (define-key map (kbd "e") 'color-rg-enable-edit-mode)
     (define-key map (kbd "q") 'color-rg-quit)
     map)
@@ -303,9 +305,12 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-search (keyword directory)
   (let* ((search-command (format "rg %s %s --column --color=always" keyword directory)))
     ;; Erase or create search result.
-    (when (get-buffer color-rg-buffer)
-      (kill-buffer color-rg-buffer))
-    (generate-new-buffer color-rg-buffer)
+    (if (get-buffer color-rg-buffer)
+        (let ((inhibit-read-only t))
+          (with-current-buffer color-rg-buffer
+            (read-only-mode -1)
+            (erase-buffer)))
+      (generate-new-buffer color-rg-buffer))
     (setq color-rg-changed-lines nil)
     ;; Run search command.
     (with-current-buffer color-rg-buffer
@@ -457,6 +462,23 @@ This function is called from `compilation-filter-hook'."
     (append-to-buffer color-rg-temp-buffer (point-min) (point-max))
     ))
 
+(defun color-rg-switch-to-view-mode ()
+  (with-current-buffer color-rg-buffer
+    ;; Do clean work.
+    (dolist (line color-rg-changed-lines)
+      (color-rg-mark-position-clear line))
+    (setq color-rg-changed-lines nil)
+    (color-rg-kill-temp-buffer)
+    (remove-hook 'after-change-functions 'color-rg-after-change-function t)
+    ;; Switch to view mode.
+    (read-only-mode 1)
+    (use-local-map nil)
+    (use-local-map color-rg-mode-map)
+    (kill-local-variable 'query-replace-skip-read-only)
+    (set (make-local-variable 'edit-mode) "View")
+    (color-rg-update-header-line)
+    ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search-input (&optional keyword directory)
   (interactive)
@@ -490,6 +512,24 @@ This function is called from `compilation-filter-hook'."
   (interactive)
   (require 'projectile)
   (color-rg-search-input (color-rg-read-input) (concat (projectile-project-root) "app")))
+
+(defun color-rg-change-search-keyword ()
+  (interactive)
+  (with-current-buffer color-rg-buffer
+    (let* ((new-keyword (read-string (format "Re-search with new keyword: ") search-keyword)))
+      (color-rg-switch-to-view-mode)
+      (color-rg-search-input new-keyword search-directory)
+      (set (make-local-variable 'search-keyword) new-keyword)
+      )))
+
+(defun color-rg-change-search-directory ()
+  (interactive)
+  (with-current-buffer color-rg-buffer
+    (let* ((new-directory (read-file-name (format "Re-search with new directory: ") search-directory)))
+      (color-rg-switch-to-view-mode)
+      (color-rg-search-input search-keyword new-directory)
+      (set (make-local-variable 'search-directory) new-directory)
+      )))
 
 (defun color-rg-jump-next-keyword ()
   (interactive)
@@ -740,20 +780,7 @@ This function is called from `compilation-filter-hook'."
     ;; Message to user.
     (message (format "Apply %s lines" (length color-rg-changed-lines)))
     )
-  ;; Do clean work.
-  (dolist (line color-rg-changed-lines)
-    (color-rg-mark-position-clear line))
-  (setq color-rg-changed-lines nil)
-  (color-rg-kill-temp-buffer)
-  (remove-hook 'after-change-functions 'color-rg-after-change-function t)
-  ;; Switch to view mode.
-  (read-only-mode 1)
-  (use-local-map nil)
-  (use-local-map color-rg-mode-map)
-  (kill-local-variable 'query-replace-skip-read-only)
-  (set (make-local-variable 'edit-mode) "View")
-  (color-rg-update-header-line)
-  )
+  (color-rg-switch-to-view-mode))
 
 (provide 'color-rg)
 

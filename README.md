@@ -12,7 +12,7 @@ The load-path is usually ~/elisp/.
 It's set in your ~/.emacs like this:
 ```Elisp
 (add-to-list 'load-path (expand-file-name "~/elisp"))
-(require color-rg)
+(require 'color-rg)
 ```
 
 Bind your favorite key to functions:
@@ -34,6 +34,8 @@ Bind your favorite key to functions:
 | h          | Jump to next match file                         |
 | l          | Jump to previous match file                     |
 | RET        | Open file relative to match line                |
+| s          | Re-search with new keyword                      |
+| d          | Re-search with new directory                    |
 | e          | Enable edit mode                                |
 | q          | Quit                                            |
 
