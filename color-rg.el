@@ -629,6 +629,7 @@ This function is called from `compilation-filter-hook'."
       (color-rg-switch-to-view-mode)
       (color-rg-search-input new-keyword search-directory)
       (set (make-local-variable 'search-keyword) new-keyword)
+      (set (make-local-variable 'search-argument) color-rg-default-argument)
       )))
 
 (defun color-rg-literal-search-helper (search-argument)
