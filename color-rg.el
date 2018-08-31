@@ -360,6 +360,7 @@ This function is called from `compilation-filter-hook'."
       (set (make-local-variable 'search-argument) rg-argument)
       (set (make-local-variable 'search-keyword) keyword)
       (set (make-local-variable 'search-directory) directory)
+      (set (make-local-variable 'default-directory) directory)
       (set (make-local-variable 'edit-mode) "View")
       (color-rg-update-header-line)
       )
@@ -580,7 +581,8 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-search-project ()
   (interactive)
   (require 'projectile)
-  (color-rg-search-input (color-rg-read-input) (projectile-project-root)))
+  (color-rg-search-input (color-rg-read-input) (projectile-project-root))
+  )
 
 (defun color-rg-search-project-rails ()
   (interactive)
@@ -627,6 +629,7 @@ This function is called from `compilation-filter-hook'."
       (color-rg-switch-to-view-mode)
       (color-rg-search-input new-keyword search-directory)
       (set (make-local-variable 'search-keyword) new-keyword)
+      (set (make-local-variable 'search-argument) color-rg-default-argument)
       )))
 
 (defun color-rg-literal-search-helper (search-argument)
@@ -645,6 +648,8 @@ This function is called from `compilation-filter-hook'."
   (interactive)
   (with-current-buffer color-rg-buffer
     (let* ((new-directory (read-file-name (format "Re-search with new directory: ") search-directory))
+           (unused (if (not (file-exists-p new-directory))
+                     (error "directory not exist")))
            (original-keyword search-keyword)
            (literal-search (color-rg-literal-search-helper search-argument))
            (new-keyword (if literal-search
