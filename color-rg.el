@@ -612,7 +612,7 @@ This function is called from `compilation-filter-hook'."
   (with-current-buffer color-rg-buffer
     (let* ((new-keyword (read-string (format "Re-search with new keyword: ") search-keyword)))
       (color-rg-switch-to-view-mode)
-      (color-rg-search-input new-keyword search-directory)
+      (color-rg-search-input new-keyword search-directory search-argument)
       (set (make-local-variable 'search-keyword) new-keyword)
       )))
 
@@ -621,7 +621,7 @@ This function is called from `compilation-filter-hook'."
   (with-current-buffer color-rg-buffer
     (let* ((new-directory (read-file-name (format "Re-search with new directory: ") search-directory)))
       (color-rg-switch-to-view-mode)
-      (color-rg-search-input search-keyword new-directory)
+      (color-rg-search-input search-keyword new-directory search-argument)
       (set (make-local-variable 'search-directory) new-directory)
       )))
 
