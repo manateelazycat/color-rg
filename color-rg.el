@@ -637,7 +637,12 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-rerun-literal ()
   (interactive)
   (with-current-buffer color-rg-buffer
-    (let* ((new-argument "--column --color=always --smart-case --fixed-strings"))
+    (let* ((new-argument (cond ((cl-search (regexp-quote "--regexp") search-argument)
+                                (replace-regexp-in-string (regexp-quote "--regexp") "--fixed-strings" search-argument))
+                               ((cl-search (regexp-quote "--fixed-strings") search-argument)
+                                (replace-regexp-in-string (regexp-quote "--fixed-strings") "--regexp" search-argument))
+                               (t color-rg-default-argument))))
+
       (color-rg-switch-to-view-mode)
       (color-rg-search-input search-keyword search-directory new-argument)
       (set (make-local-variable 'search-argument) new-argument)
@@ -646,7 +651,9 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-rerun-no-ignore ()
   (interactive)
   (with-current-buffer color-rg-buffer
-    (let* ((new-argument "--column --color=always --smart-case --no-ignore"))
+    (let* ((new-argument (if (cl-search (regexp-quote "--no-ignore") search-argument)
+                             (replace-regexp-in-string (regexp-quote "--no-ignore ") "" search-argument)
+                           (concat "--no-ignore " search-argument))))
       (color-rg-switch-to-view-mode)
       (color-rg-search-input search-keyword search-directory new-argument)
       (set (make-local-variable 'search-argument) new-argument)
@@ -655,11 +662,22 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-rerun-case-senstive ()
   (interactive)
   (with-current-buffer color-rg-buffer
-    (let* ((new-argument "--column --color=always --case-sensitive"))
+    (let* ((new-argument (cond ((cl-search (regexp-quote "--smart-case") search-argument)
+                                (replace-regexp-in-string (regexp-quote "--smart-case") "--case-sensitive" search-argument))
+                               ((cl-search (regexp-quote "--case-sensitive") search-argument)
+                                (replace-regexp-in-string (regexp-quote "--case-sensitive") "--smart-case" search-argument))
+                               (t color-rg-default-argument))))
       (color-rg-switch-to-view-mode)
       (color-rg-search-input search-keyword search-directory new-argument)
       (set (make-local-variable 'search-argument) new-argument)
       )))
+
+(defun isearch-toggle-color-rg ()
+  "toggle `color-rg' in isearch-mode."
+  (interactive)
+  (color-rg-search-input isearch-string)
+  (isearch-exit)
+  )
 
 (defun color-rg-jump-next-keyword ()
   (interactive)
