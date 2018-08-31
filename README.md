@@ -59,6 +59,7 @@ Bind your favorite key to functions:
 | C-c C-RET  | Open file relative to match line                |
 | C-c C-d    | Delete current line                             |
 | C-c C-r    | Recover current line                            |
+| C-c C-R    | Recover buffer content                          |
 | C-c C-q    | Quit                                            |
 | C-c C-c    | Apply changed line to files                     |
 

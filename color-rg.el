@@ -241,6 +241,7 @@ used to restore window configuration after apply changed.")
 
     (define-key map (kbd "C-c C-d") 'color-rg-delete-line)
     (define-key map (kbd "C-c C-r") 'color-rg-recover-line)
+    (define-key map (kbd "C-c C-R") 'color-rg-recover-buffer)
     (define-key map (kbd "C-c C-q") 'color-rg-quit)
     (define-key map (kbd "C-c C-c") 'color-rg-apply-changed)
     map)
@@ -845,6 +846,31 @@ This function is called from `compilation-filter-hook'."
   (interactive)
   (color-rg-delete-line)
   (insert (color-rg-get-line-content color-rg-temp-buffer (line-number-at-pos))))
+
+(defun color-rg-recover-buffer ()
+  (interactive)
+  (save-excursion
+    (with-current-buffer color-rg-buffer
+      (let ((inhibit-read-only t))
+        ;; Save local variables.
+        (setq current-edit-mode edit-mode)
+        (setq current-search-argument search-argument)
+        (setq current-search-keyword search-keyword)
+        (setq current-search-directory search-directory)
+        ;; Recover buffer content from temp buffer.
+        (color-rg-mode) ; switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
+        (read-only-mode -1)
+        (erase-buffer)
+        (insert (with-current-buffer color-rg-temp-buffer
+                  (buffer-substring (point-min) (point-max))))
+        ;; Restore local variables.
+        (set (make-local-variable 'search-argument) current-search-argument)
+        (set (make-local-variable 'search-keyword) current-search-keyword)
+        (set (make-local-variable 'search-directory) current-search-directory)
+        (set (make-local-variable 'edit-mode) current-edit-mode)
+        ;; Switch to edit mode.
+        (color-rg-switch-to-edit-mode)
+        ))))
 
 (defun color-rg-apply-changed ()
   (interactive)
