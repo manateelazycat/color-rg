@@ -40,9 +40,9 @@ Bind your favorite key to functions:
 | D          | Delete current line from results                |
 | s          | Re-search with new keyword                      |
 | d          | Re-search with new directory                    |
-| i          | Re-search include the ignore files              |
-| c          | Re-search with case sensitive                   |
-| t          | Re-search pattern as literal                    |
+| i          | Toggle to include or exclude the ignore files   |
+| c          | Toggle to smart case or case sensitive          |
+| t          | Toggle to search pattern as literal or regexp   |
 | m          | Re-search with customized rg argument           |
 | e          | Enable edit mode                                |
 | q          | Quit                                            |
@@ -61,3 +61,10 @@ Bind your favorite key to functions:
 | C-c C-r    | Recover current line                            |
 | C-c C-q    | Quit                                            |
 | C-c C-c    | Apply changed line to files                     |
+
+### Work with isearch
+Add this into your emacs config file:
+```
+(define-key isearch-mode-map (kbd "M-s M-s") 'isearch-toggle-color-rg)
+```
+When using `isearch-forward', type "M-s M-s" to search current isearch string with color-rg.
