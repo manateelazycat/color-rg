@@ -634,6 +634,7 @@ This function is called from `compilation-filter-hook'."
   (with-current-buffer color-rg-buffer
     (let* ((new-directory (read-file-name (format "Re-search with new directory: ") search-directory)))
       (color-rg-switch-to-view-mode)
+      (set (make-local-variable 'default-directory) new-directory)
       (color-rg-search-input search-keyword new-directory search-argument)
       (set (make-local-variable 'search-directory) new-directory)
       )))
