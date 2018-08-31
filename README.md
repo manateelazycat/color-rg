@@ -38,11 +38,11 @@ Bind your favorite key to functions:
 | f          | Filter results match regexp                     |
 | F          | Filter results not match regexp                 |
 | D          | Delete current line from results                |
-| s          | Re-search with new keyword                      |
+| s          | Re-search with new keyword and default argument |
 | d          | Re-search with new directory                    |
 | i          | Toggle to include or exclude the ignore files   |
 | c          | Toggle to smart case or case sensitive          |
-| t          | Toggle to search pattern as literal or regexp   |
+| t          | Re-search pattern as literal                    |
 | m          | Re-search with customized rg argument           |
 | e          | Enable edit mode                                |
 | q          | Quit                                            |
