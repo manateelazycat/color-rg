@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 0.1
-;; Last-Updated: 2018-08-26 14:22:12
+;; Version: 1.0
+;; Last-Updated: 2018-08-31 13:15:40
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -59,13 +59,25 @@
 
 ;;; Customize:
 ;;
-;;
+;; `color-rg'
 ;;
 ;; All of the above can customize by:
 ;;      M-x customize-group RET color-rg RET
 ;;
 
 ;;; Change log:
+;;
+;; 2018/08/30
+;;      * Add color-rg-recover-buffer
+;;      * Enhance rerun function
+;;      * Add new functions: color-rg-filter-match-results, color-rg-filter-mismatch-results, color-rg-remove-line-from-results
+;;      * Add function color-rg-filter-results
+;;      * Add smart-case to color-rg-rerun-literal and color-rg-rerun-no-ignore
+;;      * Use color-rg-get-row-column-position remove duplicate code.
+;;      * Add customize option color-rg-default-argument
+;;      * Add some research functions
+;;      * Add color-rg-replace-all-matches
+;;      * Add new functions: color-rg-change-search-keyword and color-rg-change-search-directory
 ;;
 ;; 2018/08/26
 ;;      * First released.
