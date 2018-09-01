@@ -15,6 +15,8 @@ It's set in your ~/.emacs like this:
 (require 'color-rg)
 ```
 
+If you use Mac, you also need install [https://github.com/purcell/exec-path-from-shell exec-path-from-shell]
+
 Bind your favorite key to functions:
 
 | Function                      | Description                                  |
