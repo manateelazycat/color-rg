@@ -344,10 +344,9 @@ This function is called from `compilation-filter-hook'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search (keyword directory &optional argument)
-  (let* ((rg-argument (if argument
-                          argument
-                        color-rg-default-argument
-                        ))
+  (let* ((rg-argument (or argument
+                          color-rg-default-argument
+                          ))
          (search-command (format "rg %s \"%s\" %s" rg-argument keyword directory)))
     ;; Erase or create search result.
     (if (get-buffer color-rg-buffer)
@@ -571,17 +570,14 @@ This function is called from `compilation-filter-hook'."
   (setq color-rg-hit-count 0)
   ;; Search.
   (let* ((search-keyboard
-          (if keyword
-              keyword
-            (color-rg-read-input)))
+          (or keyword
+              (color-rg-read-input)))
          (search-directory
-          (if directory
-              directory
-            default-directory))
+          (or directory
+              default-directory))
          (search-argument
-          (if argument
-              argument
-            color-rg-default-argument)))
+          (or argument
+              color-rg-default-argument)))
     (color-rg-search search-keyboard search-directory search-argument)))
 
 (defun color-rg-search-symbol ()
