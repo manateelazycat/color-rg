@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 1.3
-;; Last-Updated: 2018-09-04 12:42:48
+;; Version: 1.4
+;; Last-Updated: 2018-09-04 12:55:03
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -72,6 +72,7 @@
 ;;      * Use `color-rg-process-setup' monitor process finished, then output search hit in minibuffer.
 ;;      * Avoid function `move-to-column' change search file content.
 ;;      * Add `color-rg-filter-match-files' and `color-rg-filter-mismatch-files'
+;;      * Flash match line after open search file.
 ;;
 ;; 2018/08/31
 ;;      * Fix `color-rg-window-configuration-before-search' override if user multiple search.
@@ -194,6 +195,18 @@
 (defface color-rg-font-lock-mark-deleted
   '((t (:foreground "SystemRedColor" :bold t)))
   "Face for keyword match."
+  :group 'color-rg)
+
+(defcustom color-rg-flash-line-delay .3
+  "How many seconds to flash `color-rg-font-lock-flash' after navigation.
+
+Setting this to nil or 0 will turn off the indicator."
+  :type 'number
+  :group 'color-rg)
+
+(defface color-rg-font-lock-flash
+  '((t (:inherit highlight)))
+  "Face to flash the current line."
   :group 'color-rg)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -627,6 +640,46 @@ This function is called from `compilation-filter-hook'."
           (kill-region start end))
         (read-only-mode 1)))))
 
+(defun color-rg-flash-line (&optional pos end-pos face delay)
+  "Flash a temporary highlight to help the user find something.
+
+POS is optional, and defaults to the current point.
+
+If optional END-POS is set, flash the characters between the two
+points, otherwise flash the entire line in which POS is found.
+
+The flash is normally not inclusive of END-POS.  However, when
+POS is equal to END-POS, the single character at POS will flash.
+
+Optional FACE defaults to `color-rg-font-lock-flash'.  Optional DELAY
+defaults to `color-rg-flash-line-delay' seconds.  Setting DELAY to 0 makes
+this function a no-op."
+  (callf or pos (point))
+  (unless end-pos
+    (save-excursion
+      (let ((inhibit-point-motion-hooks t))
+        (goto-char pos)
+        (beginning-of-visual-line)
+        (setq pos (point))
+        (end-of-visual-line)
+        (setq end-pos (1+ (point))))))
+  (when (eq pos end-pos)
+    (incf end-pos))
+  (callf or delay color-rg-flash-line-delay)
+  (callf or face 'color-rg-font-lock-flash)
+  (when (and (numberp delay)
+             (> delay 0))
+    (when (timerp next-error-highlight-timer)
+      (cancel-timer next-error-highlight-timer))
+    (setq compilation-highlight-overlay (or compilation-highlight-overlay
+                                            (make-overlay (point-min) (point-min))))
+    (overlay-put compilation-highlight-overlay 'face face)
+    (overlay-put compilation-highlight-overlay 'priority 10000)
+    (move-overlay compilation-highlight-overlay pos end-pos)
+    (add-hook 'pre-command-hook 'compilation-goto-locus-delete-o)
+    (setq next-error-highlight-timer
+          (run-at-time delay nil 'compilation-goto-locus-delete-o))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search-input (&optional keyword directory argument)
   (interactive)
@@ -906,7 +959,10 @@ This function is called from `compilation-filter-hook'."
       (goto-line match-line)
       ;; NOTE:
       ;; Don't turn on FORCE option of `move-to-column', it will modification search file when force move to target column.
-      (move-to-column (- match-column 1)))
+      (move-to-column (- match-column 1))
+      ;; Flash match line.
+      (color-rg-flash-line)
+      )
     ;; Keep cursor in search buffer's window.
     (select-window (get-buffer-window color-rg-buffer))
     ;; Ajust column position.
