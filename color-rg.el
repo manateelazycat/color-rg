@@ -847,7 +847,9 @@ This function is called from `compilation-filter-hook'."
         (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
       ;; Jump to match position.
       (goto-line match-line)
-      (move-to-column (- match-column 1) t))
+      ;; NOTE:
+      ;; Don't turn on FORCE option of `move-to-column', it will modification search file when force move to target column.
+      (move-to-column (- match-column 1)))
     ;; Keep cursor in search buffer's window.
     (select-window (get-buffer-window color-rg-buffer))
     ;; Ajust column position.
