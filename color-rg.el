@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 1.2
-;; Last-Updated: 2018-09-04 11:33:08
+;; Version: 1.3
+;; Last-Updated: 2018-09-04 12:42:48
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -70,6 +70,8 @@
 ;;
 ;; 2018/09/04
 ;;      * Use `color-rg-process-setup' monitor process finished, then output search hit in minibuffer.
+;;      * Avoid function `move-to-column' change search file content.
+;;      * Add `color-rg-filter-match-files' and `color-rg-filter-mismatch-files'
 ;;
 ;; 2018/08/31
 ;;      * Fix `color-rg-window-configuration-before-search' override if user multiple search.
@@ -241,6 +243,8 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "r") 'color-rg-replace-all-matches)
     (define-key map (kbd "f") 'color-rg-filter-match-results)
     (define-key map (kbd "F") 'color-rg-filter-mismatch-results)
+    (define-key map (kbd "x") 'color-rg-filter-match-files)
+    (define-key map (kbd "X") 'color-rg-filter-mismatch-files)
     (define-key map (kbd "D") 'color-rg-remove-line-from-results)
     (define-key map (kbd "i") 'color-rg-rerun-no-ignore)
     (define-key map (kbd "t") 'color-rg-rerun-literal)
@@ -578,6 +582,51 @@ This function is called from `compilation-filter-hook'."
           (message (format "Remove %s lines match regexp '%s'." remove-counter filter-regexp)))
         ))))
 
+(defun color-rg-filter-files (match-files)
+  (let (file-extensions start end)
+    (save-excursion
+      (goto-char (point-min))
+      (while (setq end (search-forward-regexp color-rg-regexp-file nil t))
+        (beginning-of-line)
+        (setq start (point))
+        (setq filename (buffer-substring-no-properties start end))
+        (end-of-line)
+        (add-to-list 'file-extensions (file-name-extension filename))))
+    (if (< (length file-extensions) 2)
+        (message (format "Has one type files now."))
+      (setq filter-extension (completing-read (if match-files
+                                                  "Only display file suffix with: "
+                                                "Remove file suffix with: ")
+                                              file-extensions))
+      (save-excursion
+        (with-current-buffer color-rg-buffer
+          (setq remove-counter 0)
+          (goto-char (point-min))
+          (while (setq end (search-forward-regexp color-rg-regexp-file nil t))
+            (beginning-of-line)
+            (setq start (point))
+            (setq file-extension (file-name-extension (buffer-substring-no-properties start end)))
+            (if match-files
+                (if (string-equal file-extension filter-extension)
+                    (end-of-line)
+                  (color-rg-remove-lines-under-file))
+              (if (string-equal file-extension filter-extension)
+                  (color-rg-remove-lines-under-file)
+                (end-of-line))))
+          )))))
+
+(defun color-rg-remove-lines-under-file ()
+  (let (start end)
+    (save-excursion
+      (with-current-buffer color-rg-buffer
+        (read-only-mode -1)
+        (beginning-of-line)
+        (setq start (point))
+        (when (search-forward-regexp color-rg-regexp-split-line nil t)
+          (setq end (point))
+          (kill-region start end))
+        (read-only-mode 1)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search-input (&optional keyword directory argument)
   (interactive)
@@ -636,6 +685,14 @@ This function is called from `compilation-filter-hook'."
 (defun color-rg-filter-mismatch-results ()
   (interactive)
   (color-rg-filter-results nil))
+
+(defun color-rg-filter-match-files ()
+  (interactive)
+  (color-rg-filter-files t))
+
+(defun color-rg-filter-mismatch-files ()
+  (interactive)
+  (color-rg-filter-files nil))
 
 (defun color-rg-remove-line-from-results ()
   (interactive)

@@ -40,6 +40,8 @@ Bind your favorite key to functions:
 | r          | Replace all matches                             |
 | f          | Filter results match regexp                     |
 | F          | Filter results not match regexp                 |
+| x          | Filter results match file extension             |
+| X          | Filter results not match file extension         |
 | D          | Delete current line from results                |
 | s          | Re-search with new keyword and default argument |
 | d          | Re-search with new directory                    |
