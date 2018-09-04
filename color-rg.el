@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 1.1
-;; Last-Updated: 2018-08-31 18:48:51
+;; Version: 1.2
+;; Last-Updated: 2018-09-04 11:33:08
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2018/09/04
+;;      * Use `color-rg-process-setup' monitor process finished, then output search hit in minibuffer.
 ;;
 ;; 2018/08/31
 ;;      * Fix `color-rg-window-configuration-before-search' override if user multiple search.
@@ -276,6 +279,7 @@ used to restore window configuration after apply changed.")
   (color-rg-highlight-keywords)
   (use-local-map color-rg-mode-map)
   (add-hook 'compilation-filter-hook 'color-rg-filter nil t)
+  (set (make-local-variable 'compilation-process-setup-function) 'color-rg-process-setup)
   (run-hooks 'color-rg-mode-hook)
   )
 
@@ -317,19 +321,36 @@ This function is called from `compilation-filter-hook'."
           (replace-match (concat (propertize (match-string 1)
                                              'face nil 'font-lock-face 'color-rg-font-lock-file))
                          t t))
-        (goto-char beg)
 
         ;; Highlight rg matches and delete marking sequences.
+        (goto-char beg)
         (while (re-search-forward "\033\\[[0]*m\033\\[[3]*1m\033\\[[3]*1m\\(.*?\\)\033\\[[0]*m" end 1)
           (replace-match (propertize (match-string 1)
                                      'face nil 'font-lock-face 'color-rg-font-lock-match)
                          t t)
           (setq color-rg-hit-count (+ color-rg-hit-count 1)))
+
         ;; Delete all remaining escape sequences
         (goto-char beg)
         (while (re-search-forward "\033\\[[0-9;]*[0mK]" end 1)
           (replace-match "" t t))))
     ))
+
+(defun color-rg-process-setup ()
+  "Setup compilation variables and buffer for `color-rg'."
+  (set (make-local-variable 'compilation-exit-message-function)
+       (lambda (status code msg)
+         (if (eq status 'exit)
+             ;; This relies on the fact that `compilation-start'
+             ;; sets buffer-modified to nil before running the command,
+             ;; so the buffer is still unmodified if there is no output.
+             (cond ((and (zerop code) (buffer-modified-p))
+                    `(,(format "finished (%d matches found)\n" color-rg-hit-count) . "matched"))
+                   ((not (buffer-modified-p))
+                    '("finished with no matches found\n" . "no match"))
+                   (t
+                    (cons msg code)))
+           (cons msg code)))))
 
 (defun color-rg-update-header-line ()
   (setq header-line-format (format "%s%s%s%s%s%s"
