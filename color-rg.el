@@ -428,9 +428,9 @@ This function is called from `compilation-filter-hook'."
     ;; Get current symbol but remove prefix char before return.
     (let ((current-symbol (thing-at-point 'symbol)))
       (cond ((string-prefix-p "." current-symbol)
-             (string-remove-prefix current-symbol))
+             (string-remove-prefix "." current-symbol))
             ((string-prefix-p "#" current-symbol)
-             (string-remove-prefix current-symbol))
+             (string-remove-prefix "#" current-symbol))
             (t current-symbol)))
     ))
 
