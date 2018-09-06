@@ -1,21 +1,20 @@
 <img src="./screenshot/color-rg.png">
 
 # What is color-rg?
-color-rg is search and refactoring tool based on ripgrep.
+color-rg is a search and refactoring tool based on ripgrep.
 
-I'm a big fan of color-moccur.el, this extension's name is used for tribute color-moccur.el!
+I'm a big fan of color-moccur.el, this extension's name is a tribute to color-moccur.el!
 
 ## Installation
+Clone or download this repository (path of the folder is the `<path-to-color-rg>` used below).
 
-Put `color-rg.el` to your load-path.
-The load-path is usually ~/elisp/.
-It's set in your ~/.emacs like this:
+In your `~/.emacs`, add the following two lines:
 ```Elisp
-(add-to-list 'load-path (expand-file-name "~/elisp"))
+(add-to-list 'load-path "<path-to-color-rg>") ; add color-rg to your load-path
 (require 'color-rg)
 ```
 
-If you use Mac, you also need install [exec-path-from-shell](https://github.com/purcell/exec-path-from-shell)
+If you use Mac, you also need to install [exec-path-from-shell](https://github.com/purcell/exec-path-from-shell)
 
 ## Usage
 Bind your favorite key to functions:
