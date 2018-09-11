@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 1.5
-;; Last-Updated: 2018-09-11 11:15:46
+;; Version: 1.6
+;; Last-Updated: 2018-09-11 11:50:35
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -70,6 +70,7 @@
 ;;
 ;; 2018/09/11
 ;;      * Switch to literal search automaticity when parsing keyword regexp failed.
+;;      * Adjust regex to match "Error parsing regex near".
 ;;
 ;; 2018/09/04
 ;;      * Use `color-rg-process-setup' monitor process finished, then output search hit in minibuffer.
@@ -372,7 +373,7 @@ This function is called from `compilation-filter-hook'."
                     (if (string-prefix-p "exited abnormally with code" msg)
                         ;; Switch to literal search automaticity when parsing keyword regexp failed.
                         (with-current-buffer color-rg-buffer
-                          (when (search-forward-regexp "(Hint:\\s-Try\\s-the\\s---fixed-strings\\s-flag" nil t)
+                          (when (search-forward-regexp "^Error parsing regex near" nil t)
                             (run-at-time "2sec" nil
                                          (lambda ()
                                            (message "COLOR-RG: parsing keyword regexp failed, switch to literal search automaticity.")))
