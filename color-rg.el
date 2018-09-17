@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 1.7
-;; Last-Updated: 2018-09-15 11:53:05
+;; Version: 1.8
+;; Last-Updated: 2018-09-17 10:46:13
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2018/09/17
+;;      * Use `ido-completing-read' instead `completing-read' to provide fuzz match.
 ;;
 ;; 2018/09/15
 ;;      * Transferred keyword if use default `color-rg-default-argument'
@@ -643,10 +646,10 @@ This function is called from `compilation-filter-hook'."
         (add-to-list 'file-extensions (file-name-extension filename))))
     (if (< (length file-extensions) 2)
         (message (format "Has one type files now."))
-      (setq filter-extension (completing-read (if match-files
-                                                  "Only display file suffix with: "
-                                                "Remove file suffix with: ")
-                                              file-extensions))
+      (setq filter-extension (ido-completing-read (if match-files
+                                                      "Only display file suffix with: "
+                                                    "Remove file suffix with: ")
+                                                  file-extensions))
       (save-excursion
         (with-current-buffer color-rg-buffer
           (setq remove-counter 0)
