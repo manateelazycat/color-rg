@@ -73,3 +73,11 @@ Add this into your emacs config file:
 (define-key isearch-mode-map (kbd "M-s M-s") 'isearch-toggle-color-rg)
 ```
 When using `isearch-forward', type "M-s M-s" to search current isearch string with color-rg.
+
+### Contributors
+
+Thanks all [contributors](https://github.com/manateelazycat/color-rg/graphs/contributors) help this project.
+
+Below is list of outstanding contributors:
+
+[Xie Peng](https://github.com/pengpengxp) - Main contributor, wrote many patches to improve regexp/literal search.
