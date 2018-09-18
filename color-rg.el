@@ -412,8 +412,8 @@ This function is called from `compilation-filter-hook'."
                                    )))
 
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
-                         (:constructor color-rg-search-new (pattern dir))
-                         (:copier nil))
+                               (:constructor color-rg-search-new (pattern dir))
+                               (:copier nil))
   keyword                ; search keyword
   dir                    ; base directory
   literal                ; literal patterh (t or nil)
@@ -491,11 +491,6 @@ CASE-SENSITIVE determinies if search is case-sensitive."
     (pop-to-buffer color-rg-buffer)
     (goto-char (point-min))
     ))
-
-(defun color-rg-transferred-quote (text)
-  (setq text (princ (replace-regexp-in-string "\"" "\\\\\"" text)))
-  (setq text (princ (replace-regexp-in-string "`" "\\\\`" text)))
-  text)
 
 (defun color-rg-read-input ()
   (let* ((current-symbol (color-rg-pointer-string))
@@ -896,9 +891,9 @@ from `color-rg-cur-search'."
       (color-rg-rerun)
     (progn
       (setf (color-rg-search-keyword color-rg-cur-search)
-        (read-string "Re-search with-literal: "
-                     (color-rg-search-keyword color-rg-cur-search)))
-  (color-rg-rerun))))
+            (read-string "Re-search with-literal: "
+                         (color-rg-search-keyword color-rg-cur-search)))
+      (color-rg-rerun))))
 
 (defun color-rg-rerun-toggle-case ()
   "Rerun last search with toggled case sensitivity setting."
