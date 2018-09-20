@@ -414,12 +414,12 @@ This function is called from `compilation-filter-hook'."
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
                                (:constructor color-rg-search-new (pattern dir))
                                (:copier nil))
-  keyword                ; search keyword
-  dir                    ; base directory
-  literal                ; literal patterh (t or nil)
-  case-sensitive         ; case-sensitive (t or nil)
-  no-ignore              ; toggle no-ignore (t or nil)
-  mode                   ; view or edit mode
+  keyword                               ; search keyword
+  dir                                   ; base directory
+  literal                               ; literal patterh (t or nil)
+  case-sensitive                        ; case-sensitive (t or nil)
+  no-ignore                             ; toggle no-ignore (t or nil)
+  mode                                  ; view or edit mode
   )
 
 (defvar color-rg-cur-search (color-rg-search-create)
