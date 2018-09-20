@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 1.8
-;; Last-Updated: 2018-09-17 10:46:13
+;; Version: 1.9
+;; Last-Updated: 2018-09-20 17:32:43
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,11 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2018/09/20
+;;      * Display search hit in header line.
+;;      * Fix `color-rg-replace-all-matches' void variable bug cause by refactor of `color-rg-cur-search'
+;;      * Clean unused local variables.
 ;;
 ;; 2018/09/18
 ;;      * add `color-rg-cur-search' to store parameters of last search.
@@ -369,7 +374,9 @@ This function is called from `compilation-filter-hook'."
           (replace-match (propertize (match-string 1)
                                      'face nil 'font-lock-face 'color-rg-font-lock-match)
                          t t)
-          (setq color-rg-hit-count (+ color-rg-hit-count 1)))
+          (setq color-rg-hit-count (+ color-rg-hit-count 1))
+          (color-rg-update-header-line)
+          )
 
         ;; Delete all remaining escape sequences
         (goto-char beg)
@@ -402,14 +409,16 @@ This function is called from `compilation-filter-hook'."
            (cons msg code)))))
 
 (defun color-rg-update-header-line ()
-  (setq header-line-format (format "%s%s%s%s%s%s"
-                                   (propertize "[COLOR-RG] Search '" 'font-lock-face 'color-rg-font-lock-header-line-text)
-                                   (propertize (format "%s" (color-rg-search-keyword color-rg-cur-search)) 'font-lock-face 'color-rg-font-lock-header-line-keyword)
-                                   (propertize "' in directory: " 'font-lock-face 'color-rg-font-lock-header-line-text)
-                                   (propertize (format "%s" (color-rg-search-dir color-rg-cur-search)) 'font-lock-face 'color-rg-font-lock-header-line-directory)
-                                   (propertize " Mode: " 'font-lock-face 'color-rg-font-lock-header-line-text)
-                                   (propertize (format "%s" (color-rg-search-mode color-rg-cur-search)) 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
-                                   )))
+  (setq header-line-format (concat
+                            (propertize "[COLOR-RG] Search '" 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize (format "%s" (color-rg-search-keyword color-rg-cur-search)) 'font-lock-face 'color-rg-font-lock-header-line-keyword)
+                            (propertize "' in directory: " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize (format "%s" (color-rg-search-dir color-rg-cur-search)) 'font-lock-face 'color-rg-font-lock-header-line-directory)
+                            (propertize " Mode: " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize (format "%s" (color-rg-search-mode color-rg-cur-search)) 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize " Hits: " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize (format "%s" color-rg-hit-count) 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            )))
 
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
                                (:constructor color-rg-search-new (pattern dir))
@@ -458,7 +467,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
 (defun color-rg-search (keyword directory &optional literal no-ignore case-sensitive)
   (let* ((command (color-rg-build-command keyword directory literal no-ignore case-sensitive)))
-
+    ;; Reset hit count.
+    (setq color-rg-hit-count 0)
     ;; Erase or create search result.
     (if (get-buffer color-rg-buffer)
         (with-current-buffer color-rg-buffer
@@ -767,8 +777,6 @@ this function a no-op."
   (setq color-rg-search-counter (+ 1 color-rg-search-counter))
   ;; Set `enable-local-variables' to :safe, avoid emacs ask annoyingly question when open file by color-rg.
   (setq enable-local-variables :safe)
-  ;; Reset hit count.
-  (setq color-rg-hit-count 0)
   ;; Search.
   (let* ((search-keyboard
           (or keyword
@@ -797,13 +805,13 @@ this function a no-op."
   (interactive)
   (save-excursion
     (with-current-buffer color-rg-buffer
-      (let* ((replace-text (read-string (format "Replace '%s' all matches with: " search-keyword) search-keyword)))
+      (let* ((search-keyword (color-rg-search-keyword color-rg-cur-search))
+             (replace-text (read-string (format "Replace '%s' all matches with: " search-keyword) search-keyword)))
         (color-rg-switch-to-edit-mode)
         (query-replace search-keyword replace-text nil (point-min) (point-max))
         (color-rg-apply-changed)
         (color-rg-switch-to-view-mode)
-        ;; Set search keyword with new replace text.
-        (set (make-local-variable 'search-keyword) replace-text)
+        (setf (color-rg-search-keyword color-rg-cur-search) replace-text)
         ))))
 
 (defun color-rg-filter-match-results ()
@@ -854,6 +862,8 @@ from `color-rg-cur-search'."
         (no-ignore (color-rg-search-no-ignore color-rg-cur-search)))
     (setcar compilation-arguments
             (color-rg-build-command keyword dir literal no-ignore case-sensitive))
+    ;; Reset hit count.
+    (setq color-rg-hit-count 0)
 
     ;; compilation-directory is used as search dir and
     ;; default-directory is used as the base for file paths.
@@ -1097,22 +1107,12 @@ from `color-rg-cur-search'."
   (save-excursion
     (with-current-buffer color-rg-buffer
       (let ((inhibit-read-only t))
-        ;; Save local variables.
-        (setq current-edit-mode edit-mode)
-        (setq current-search-argument search-argument)
-        (setq current-search-keyword search-keyword)
-        (setq current-search-directory search-directory)
         ;; Recover buffer content from temp buffer.
         (color-rg-mode) ; switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
         (read-only-mode -1)
         (erase-buffer)
         (insert (with-current-buffer color-rg-temp-buffer
                   (buffer-substring (point-min) (point-max))))
-        ;; Restore local variables.
-        (set (make-local-variable 'search-argument) current-search-argument)
-        (set (make-local-variable 'search-keyword) current-search-keyword)
-        (set (make-local-variable 'search-directory) current-search-directory)
-        (set (make-local-variable 'edit-mode) current-edit-mode)
         ;; Switch to edit mode.
         (color-rg-switch-to-edit-mode)
         ))))
