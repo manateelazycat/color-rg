@@ -595,15 +595,15 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 (defun color-rg-get-match-file ()
   (save-excursion
     (search-backward-regexp color-rg-regexp-file nil t)
-    (string-remove-suffix "\n" (buffer-substring-no-properties (beginning-of-thing 'line) (end-of-thing 'line)))))
+    (string-remove-suffix "\n" (thing-at-point 'line))))
 
 (defun color-rg-get-match-line ()
   (beginning-of-line)
-  (string-to-number (buffer-substring-no-properties (beginning-of-thing 'symbol) (end-of-thing 'symbol))))
+  (string-to-number (thing-at-point 'symbol)))
 
 (defun color-rg-get-match-column ()
   (search-forward ":")
-  (string-to-number (buffer-substring-no-properties (beginning-of-thing 'symbol) (end-of-thing 'symbol))))
+  (string-to-number (thing-at-point 'symbol)))
 
 (defun color-rg-get-match-buffer (filepath)
   (catch 'find-match
