@@ -282,6 +282,8 @@ used to restore window configuration after apply changed.")
 (defvar color-rg-changed-lines nil
   "The list that record the changed lines.")
 
+(defvar color-rg-read-input-history nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; color-rg mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar color-rg-mode-map
   (let ((map (make-sparse-keymap)))
@@ -534,7 +536,13 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
 (defun color-rg-read-input ()
   (let* ((current-symbol (color-rg-pointer-string))
-         (input-string (string-trim (read-string (format "COLOR-RG Search (%s): " current-symbol)))))
+         (input-string
+          (string-trim
+           (read-string
+            (format "COLOR-RG Search (%s): " current-symbol)
+            current-symbol
+            'color-rg-read-input-history
+            ))))
     (when (string-blank-p input-string)
       (setq input-string current-symbol))
     input-string))
