@@ -169,6 +169,7 @@
   :type 'string
   :group 'color-rg)
 
+(setq color-rg-buffer "*ccc*")
 (defmacro with-color-rg-buffer (&rest body)
   `(if (not (equal major-mode 'color-rg-mode))
        (error "must be in `color-rg-mode' buffer")
@@ -532,8 +533,11 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
     ;; Run search command.
     (with-current-buffer rg-buffer
+      ;;(setq major-mode 'color-rg-mode)
       ;; Start command.
-      (compilation-start command 'color-rg-mode)
+      (compilation-start command 'color-rg-mode
+			 '(lambda (&optional mode)
+			    (color-rg-buffer keyword)))
 
       ;; save last search
       (setq-default color-rg-cur-search
@@ -726,7 +730,8 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 
 (defun color-rg-clone-to-temp-buffer ()
   (color-rg-kill-temp-buffer)
-  (with-color-rg-buffer
+  ;;(with-color-rg-buffer
+  (with-current-buffer  (current-buffer)
     (add-hook 'kill-buffer-hook 'color-rg-kill-temp-buffer nil t)
     (generate-new-buffer color-rg-temp-buffer)
     (append-to-buffer color-rg-temp-buffer (point-min) (point-max))
