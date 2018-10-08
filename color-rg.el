@@ -970,13 +970,18 @@ this function a no-op."
   (interactive)
   (save-excursion
     (with-color-rg-buffer
-      (when (color-rg-get-row-column-position)
+     (if (region-active-p)
+	 (progn
+           (read-only-mode -1)
+	   (delete-region (region-beginning) (region-end))
+           (read-only-mode 1)
+	   )
+       (when (color-rg-get-row-column-position)
         (read-only-mode -1)
         (beginning-of-line)
-        (kill-line)
-        (kill-line)
+        (kill-line 2)
         (read-only-mode 1)
-        ))))
+        )))))
 
 (defun color-rg-recompile ()
   "Run `recompile' while preserving some buffer local variables."
