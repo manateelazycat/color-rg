@@ -169,6 +169,23 @@
   :type 'string
   :group 'color-rg)
 
+(setq color-rg-buffer "*ccc*")
+(defmacro with-color-rg-buffer (&rest body)
+  `(if (not (equal major-mode 'color-rg-mode))
+       (error "must be in `color-rg-mode' buffer")
+     (with-current-buffer (current-buffer)
+       ,@body)
+     ))
+
+
+(defun color-rg-buffer (key)
+  (concat
+   (substring color-rg-buffer 0 -1)
+   "-"
+   key
+   (substring color-rg-buffer -1 )
+   ))
+
 (defcustom color-rg-temp-buffer " *color-rg temp* "
   "The buffer name of clone temp buffer"
   :type 'string
@@ -422,7 +439,7 @@ This function is called from `compilation-filter-hook'."
                     '("finished with no matches found\n" . "no match"))
                    ((string-prefix-p "exited abnormally with code" msg)
                     ;; Switch to literal search automaticity when parsing keyword regexp failed.
-                    (with-current-buffer color-rg-buffer
+                    (with-color-rg-buffer
                       (cond ((search-forward-regexp "^Error parsing regex near" nil t)
                              (run-at-time "2sec" nil
                                           (lambda ()
@@ -498,25 +515,29 @@ CASE-SENSITIVE determinies if search is case-sensitive."
      )))
 
 (defun color-rg-search (keyword directory &optional literal no-ignore case-sensitive)
-  (let* ((command (color-rg-build-command keyword directory literal no-ignore case-sensitive)))
+  (let* ((command (color-rg-build-command keyword directory literal no-ignore case-sensitive))
+	 (rg-buffer (color-rg-buffer keyword)))
     ;; Reset hit count.
     (setq color-rg-hit-count 0)
     ;; Erase or create search result.
-    (if (get-buffer color-rg-buffer)
-        (with-current-buffer color-rg-buffer
+    (if (get-buffer rg-buffer)
+        (with-current-buffer  rg-buffer
           (let ((inhibit-read-only t))
             ;; Switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
             (color-rg-mode)
             ;; Erase buffer content.
             (read-only-mode -1)
             (erase-buffer)))
-      (generate-new-buffer color-rg-buffer))
+      (generate-new-buffer rg-buffer))
     (setq color-rg-changed-lines nil)
 
     ;; Run search command.
-    (with-current-buffer color-rg-buffer
+    (with-current-buffer rg-buffer
+      ;;(setq major-mode 'color-rg-mode)
       ;; Start command.
-      (compilation-start command 'color-rg-mode)
+      (compilation-start command 'color-rg-mode
+			 '(lambda (&optional mode)
+			    (color-rg-buffer keyword)))
 
       ;; save last search
       (setq-default color-rg-cur-search
@@ -530,7 +551,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
       (color-rg-update-header-line))
 
     ;; Pop search buffer.
-    (pop-to-buffer color-rg-buffer)
+    (pop-to-buffer rg-buffer)
     (goto-char (point-min))
     ))
 
@@ -658,7 +679,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
                           (line-number-at-pos)))
            change-line-content
            original-line-content)
-      (setq changed-line-content (color-rg-get-line-content color-rg-buffer change-line))
+      (setq changed-line-content (color-rg-get-line-content (current-buffer) change-line))
       (setq original-line-content (color-rg-get-line-content color-rg-temp-buffer change-line))
       (if (string-equal changed-line-content original-line-content)
           (progn
@@ -709,14 +730,15 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 
 (defun color-rg-clone-to-temp-buffer ()
   (color-rg-kill-temp-buffer)
-  (with-current-buffer color-rg-buffer
+  ;;(with-color-rg-buffer
+  (with-current-buffer  (current-buffer)
     (add-hook 'kill-buffer-hook 'color-rg-kill-temp-buffer nil t)
     (generate-new-buffer color-rg-temp-buffer)
     (append-to-buffer color-rg-temp-buffer (point-min) (point-max))
     ))
 
 (defun color-rg-switch-to-view-mode ()
-  (with-current-buffer color-rg-buffer
+  (with-color-rg-buffer
     ;; Do clean work.
     (dolist (line color-rg-changed-lines)
       (color-rg-mark-position-clear line))
@@ -737,11 +759,11 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
                                     "Filter result match regexp: "
                                   "Filter result not match regexp: ")))))
     (save-excursion
-      (with-current-buffer color-rg-buffer
+      (with-color-rg-buffer
         (setq remove-counter 0)
         (goto-char (point-min))
         (while (setq start (search-forward-regexp color-rg-regexp-position nil t))
-          (setq line-content (color-rg-get-line-content color-rg-buffer (line-number-at-pos)))
+          (setq line-content (color-rg-get-line-content (current-buffer) (line-number-at-pos)))
           (if match-regexp
               (unless (string-match filter-regexp line-content)
                 (color-rg-remove-line-from-results)
@@ -775,7 +797,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
                                                     "Remove file suffix with: ")
                                                   file-extensions))
       (save-excursion
-        (with-current-buffer color-rg-buffer
+        (with-color-rg-buffer
           (setq remove-counter 0)
           (goto-char (point-min))
           (while (setq end (search-forward-regexp color-rg-regexp-file nil t))
@@ -796,7 +818,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 (defun color-rg-remove-lines-under-file ()
   (let (start end)
     (save-excursion
-      (with-current-buffer color-rg-buffer
+      (with-color-rg-buffer
         (read-only-mode -1)
         (beginning-of-line)
         (setq start (point))
@@ -871,7 +893,7 @@ this function a no-op."
   ;; Just save when `color-rg-window-configuration-before-search' is nil
   ;; Or current buffer is not `color-rg-buffer' (that mean user not quit color-rg and search again in other place).
   (when (or (not color-rg-window-configuration-before-search)
-            (not (string-equal (buffer-name) color-rg-buffer)))
+            (not (string-equal (buffer-name) (color-rg-buffer keyword))))
     (setq color-rg-window-configuration-before-search (current-window-configuration))
     (setq color-rg-buffer-point-before-search (point)))
   ;; Set `enable-local-variables' to :safe, avoid emacs ask annoyingly question when open file by color-rg.
@@ -903,7 +925,7 @@ this function a no-op."
 (defun color-rg-replace-all-matches ()
   (interactive)
   (save-excursion
-    (with-current-buffer color-rg-buffer
+    (with-color-rg-buffer
       (let* ((search-keyword (color-rg-search-keyword color-rg-cur-search))
              (replace-text (read-string (format "Replace '%s' all matches with: " search-keyword) search-keyword)))
         (color-rg-switch-to-edit-mode)
@@ -932,7 +954,7 @@ this function a no-op."
 (defun color-rg-unfilter ()
   (interactive)
   (save-excursion
-    (with-current-buffer color-rg-buffer
+    (with-color-rg-buffer
       (let ((inhibit-read-only t))
         (color-rg-mode) ; switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
         (read-only-mode -1)
@@ -947,14 +969,19 @@ this function a no-op."
 (defun color-rg-remove-line-from-results ()
   (interactive)
   (save-excursion
-    (with-current-buffer color-rg-buffer
-      (when (color-rg-get-row-column-position)
+    (with-color-rg-buffer
+     (if (region-active-p)
+	 (progn
+           (read-only-mode -1)
+	   (delete-region (region-beginning) (region-end))
+           (read-only-mode 1)
+	   )
+       (when (color-rg-get-row-column-position)
         (read-only-mode -1)
         (beginning-of-line)
-        (kill-line)
-        (kill-line)
+        (kill-line 2)
         (read-only-mode 1)
-        ))))
+        )))))
 
 (defun color-rg-recompile ()
   "Run `recompile' while preserving some buffer local variables."
@@ -978,14 +1005,14 @@ from `color-rg-cur-search'."
             (color-rg-build-command keyword dir literal no-ignore case-sensitive))
     ;; Reset hit count.
     (setq color-rg-hit-count 0)
-
+    
     ;; compilation-directory is used as search dir and
     ;; default-directory is used as the base for file paths.
     (setq compilation-directory dir)
     (setq default-directory compilation-directory)
     (color-rg-recompile)
     (color-rg-update-header-line)
-    (pop-to-buffer color-rg-buffer)
+    (pop-to-buffer (color-rg-buffer keyword))
     (goto-char (point-min))
     ))
 
@@ -1114,7 +1141,8 @@ from `color-rg-cur-search'."
 
 (defun color-rg-open-file ()
   (interactive)
-  (let* ((match-file (color-rg-get-match-file))
+  (let* ((rg-buffer (current-buffer))
+	 (match-file (color-rg-get-match-file))
          (match-line (color-rg-get-match-line))
          (match-column (color-rg-get-match-column))
          (match-buffer (color-rg-get-match-buffer match-file)))
@@ -1133,7 +1161,7 @@ from `color-rg-cur-search'."
       (color-rg-flash-line)
       )
     ;; Keep cursor in search buffer's window.
-    (select-window (get-buffer-window color-rg-buffer))
+    (select-window (get-buffer-window rg-buffer))
     ;; Ajust column position.
     (beginning-of-line)
     (search-forward-regexp color-rg-regexp-position)
@@ -1187,7 +1215,7 @@ from `color-rg-cur-search'."
     (kill-buffer temp-buffer))
   (setq color-rg-temp-visit-buffers nil)
   ;; Kill search buffer.
-  (kill-buffer color-rg-buffer)
+  (kill-buffer (current-buffer))
   ;; Restore window configuration before search.
   (when color-rg-window-configuration-before-search
     (set-window-configuration color-rg-window-configuration-before-search)
@@ -1215,7 +1243,7 @@ from `color-rg-cur-search'."
 (defun color-rg-delete-all-lines ()
   (interactive)
   (save-excursion
-    (with-current-buffer color-rg-buffer
+    (with-color-rg-buffer
       (goto-char (point-min))
       (while (search-forward-regexp color-rg-regexp-position nil t)
         (color-rg-delete-line)))))
@@ -1228,7 +1256,7 @@ from `color-rg-cur-search'."
 (defun color-rg-recover-buffer ()
   (interactive)
   (save-excursion
-    (with-current-buffer color-rg-buffer
+    (with-color-rg-buffer
       (let ((inhibit-read-only t))
         ;; Recover buffer content from temp buffer.
         (color-rg-mode) ; switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
@@ -1250,8 +1278,8 @@ from `color-rg-cur-search'."
     (save-excursion
       (dolist (line color-rg-changed-lines)
         (let (match-file match-line changed-line-content)
-          (setq changed-line-content (color-rg-get-line-content color-rg-buffer line))
-          (with-current-buffer color-rg-buffer
+          (setq changed-line-content (color-rg-get-line-content (current-buffer) line))
+          (with-color-rg-buffer
             ;; Get match file and line.
             (goto-line line)
             (setq match-file (color-rg-get-match-file))
