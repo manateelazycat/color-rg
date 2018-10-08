@@ -540,7 +540,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
           (string-trim
            (read-string
             (format "COLOR-RG Search (%s): " current-symbol)
-            current-symbol
+            nil
             'color-rg-read-input-history
             ))))
     (when (string-blank-p input-string)
