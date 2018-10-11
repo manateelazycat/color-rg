@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 2.5
-;; Last-Updated: 2018-10-03 16:36:46
+;; Version: 2.6
+;; Last-Updated: 2018-10-11 21:35:19
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -68,6 +68,9 @@
 
 ;;; Change log:
 ;;
+;; 2018/10/11
+;;	* Reset `color-rg-temp-visit-buffers' to avoid deleting the buffer being browsed after multiple searches.
+;; 
 ;; 2018/10/03
 ;;      * Use `color-rg-update-header-line-hits' update keywoard hits after filter operation.
 ;;
@@ -499,6 +502,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
 (defun color-rg-search (keyword directory &optional literal no-ignore case-sensitive)
   (let* ((command (color-rg-build-command keyword directory literal no-ignore case-sensitive)))
+    ;; Reset visit temp buffers.
+    (setq color-rg-temp-visit-buffers nil)
     ;; Reset hit count.
     (setq color-rg-hit-count 0)
     ;; Erase or create search result.
