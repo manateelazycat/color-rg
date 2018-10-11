@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 2.6
-;; Last-Updated: 2018-10-11 21:35:19
+;; Version: 2.7
+;; Last-Updated: 2018-10-11 21:45:36
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -69,8 +69,9 @@
 ;;; Change log:
 ;;
 ;; 2018/10/11
-;;	* Reset `color-rg-temp-visit-buffers' to avoid deleting the buffer being browsed after multiple searches.
-;; 
+;;      * Reset `color-rg-temp-visit-buffers' to avoid deleting the buffer being browsed after multiple searches.
+;;      * Delete files that throw "error parsing glob" error when search.
+;;
 ;; 2018/10/03
 ;;      * Use `color-rg-update-header-line-hits' update keywoard hits after filter operation.
 ;;
@@ -385,7 +386,12 @@ This function is called from `compilation-filter-hook'."
       ;; escape sequence in one chunk and the rest in another.
       (when (< (point) end)
         (setq end (copy-marker end))
+        ;; Delete files that throw "error parsing glob" error when search.
+        (while (re-search-forward "/.*:\\s-error\\s-parsing\\s-glob\\s-.*" end 1)
+          (replace-match "" t t))
+
         ;; Highlight filename.
+        (goto-char beg)
         (while (re-search-forward "^\033\\[[0]*m\033\\[35m\\(.*?\\)\033\\[[0]*m$" end 1)
           (replace-match (concat (propertize (match-string 1)
                                              'face nil 'font-lock-face 'color-rg-font-lock-file))
