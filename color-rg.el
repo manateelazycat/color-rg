@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;; 2018/10/18
+;;      * add `color-rg-rerun-change-files' to files search files by GLOB. default files is "everything".
+;;      * IMPORTANT: lots of code are copied from `https://github.com/dajva/rg.el'.
 ;;
 ;; 2018/10/11
 ;;      * Reset `color-rg-temp-visit-buffers' to avoid deleting the buffer being browsed after multiple searches.
@@ -288,6 +291,9 @@ used to restore window configuration after apply changed.")
 
 (defvar color-rg-read-input-history nil)
 
+(defvar color-rg-files-history nil "History for files args.")
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; color-rg mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar color-rg-mode-map
   (let ((map (make-sparse-keymap)))
@@ -305,9 +311,11 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "r") 'color-rg-replace-all-matches)
     (define-key map (kbd "f") 'color-rg-filter-match-results)
     (define-key map (kbd "F") 'color-rg-filter-mismatch-results)
+
     (define-key map (kbd "x") 'color-rg-filter-match-files)
     (define-key map (kbd "X") 'color-rg-filter-mismatch-files)
     (define-key map (kbd "u") 'color-rg-unfilter)
+
     (define-key map (kbd "D") 'color-rg-remove-line-from-results)
 
     (define-key map (kbd "i") 'color-rg-rerun-toggle-ignore)
@@ -315,6 +323,7 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "c") 'color-rg-rerun-toggle-case)
     (define-key map (kbd "s") 'color-rg-rerun-regexp)
     (define-key map (kbd "d") 'color-rg-rerun-change-dir)
+    (define-key map (kbd "z") 'color-rg-rerun-change-files)
 
     (define-key map (kbd "e") 'color-rg-switch-to-edit-mode)
     (define-key map (kbd "q") 'color-rg-quit)
@@ -458,6 +467,7 @@ This function is called from `compilation-filter-hook'."
                                (:copier nil))
   keyword                               ; search keyword
   dir                                   ; base directory
+  files                                  ; files to search
   literal                               ; literal patterh (t or nil)
   case-sensitive                        ; case-sensitive (t or nil)
   no-ignore                             ; toggle no-ignore (t or nil)
@@ -471,7 +481,64 @@ Becomes buffer local in `color-rg-mode' buffers.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun color-rg-build-command (keyword dir &optional literal no-ignore case-sensitive)
+(defvar color-rg-builtin-type-aliases nil
+  "Cache for 'rg --type-list'.")
+
+(defconst color-rg-internal-type-aliases
+  '(("all" . "all defined type aliases") ; rg --type all
+    ("everything" . "*")) ; rg without '--type' arg
+  "Internal type aliases for special purposes.
+These are not produced by 'rg --type-list' but we need them anyway.")
+
+(defcustom color-rg-custom-type-aliases
+  '(("gn" .    "*.gn *.gni")
+    ("gyp" .    "*.gyp *.gypi"))
+  "A list of file type aliases that are added to the 'rg' built in aliases.
+Each list element may be a (string . string) cons containing the name of the
+type alias and the file patterns, or a lambda returning a similar cons cell.
+A lambda should return nil if it currently has no type aliases to contribute."
+  )
+
+(defun color-rg-get-custom-type-aliases ()
+  "Get alist of custom type aliases.
+Any lambda elements will be evaluated, and nil results will be
+filtered out."
+  (delq nil (mapcar
+             (lambda (ct) (if (functionp ct) (funcall ct) ct))
+             color-rg-custom-type-aliases)))
+
+(defun color-rg-list-builtin-type-aliases ()
+  "Invokes rg --type-list and puts the result in an alist."
+  (unless (executable-find "rg")
+    (error "'rg' is not in path"))
+  (let ((type-list (nbutlast (split-string
+                              (shell-command-to-string
+                               (concat (executable-find "rg") " --type-list"))
+                              "\n") 1)))
+    (mapcar
+     (lambda (type-alias)
+       (setq type-alias (split-string type-alias ":" t))
+       (cons (s-trim (car type-alias))
+             (s-trim
+              (mapconcat 'identity
+                         (split-string (cadr type-alias) "," t )
+                         " "))))
+     type-list)))
+
+(defun color-rg-get-type-aliases (&optional skip-internal)
+  "Return supported type aliases.
+If SKIP-INTERNAL is non nil the `color-rg-internal-type-aliases' will be
+excluded."
+  (unless color-rg-builtin-type-aliases
+    (setq color-rg-builtin-type-aliases (color-rg-list-builtin-type-aliases)))
+  (append (color-rg-get-custom-type-aliases) color-rg-builtin-type-aliases
+          (unless skip-internal color-rg-internal-type-aliases)))
+
+(defun color-rg-is-custom-file-pattern (files)
+  "Return non nil if FILES is a custom file pattern."
+  (not (assoc files (color-rg-get-type-aliases))))
+
+(defun color-rg-build-command (keyword dir files &optional literal no-ignore case-sensitive)
   "Create the command line for KEYWORD.
 LITERAL determines if search will be literal or regexp based.
 NO-IGNORE determinies if search not ignore the ignored files.
@@ -492,6 +559,9 @@ CASE-SENSITIVE determinies if search is case-sensitive."
           (when no-ignore
             (list "--no-ignore"))
 
+          (when (color-rg-is-custom-file-pattern files)
+            (list (concat "--type-add " (shell-quote-argument (concat "custom:" files)))))
+
           (if case-sensitive
               (list "--case-sensitive")
             (list "--smart-case"))
@@ -499,15 +569,18 @@ CASE-SENSITIVE determinies if search is case-sensitive."
           (when literal
             (list "--fixed-strings"))
 
+          (when (not (equal files "everything"))
+            (list "--type <F>"))
+
           (list "-e <R>" dir))))
 
     (grep-expand-template
      (mapconcat 'identity (cons "rg" (delete-dups command-line)) " ")
      keyword
-     )))
+     (if (color-rg-is-custom-file-pattern files) "custom" files))))
 
-(defun color-rg-search (keyword directory &optional literal no-ignore case-sensitive)
-  (let* ((command (color-rg-build-command keyword directory literal no-ignore case-sensitive)))
+(defun color-rg-search (keyword directory files &optional literal no-ignore case-sensitive)
+  (let* ((command (color-rg-build-command keyword directory files literal no-ignore case-sensitive)))
     ;; Reset visit temp buffers.
     (setq color-rg-temp-visit-buffers nil)
     ;; Reset hit count.
@@ -534,6 +607,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
                     (color-rg-search-create
                      :keyword keyword
                      :dir directory
+                     :files files
                      :no-ignore no-ignore
                      :literal literal
                      :case-sensitive case-sensitive
@@ -876,7 +950,7 @@ this function a no-op."
       hit-count)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun color-rg-search-input (&optional keyword directory argument)
+(defun color-rg-search-input (&optional keyword directory files)
   (interactive)
   ;; Save window configuration before do search.
   ;; Just save when `color-rg-window-configuration-before-search' is nil
@@ -893,8 +967,11 @@ this function a no-op."
               (color-rg-read-input)))
          (search-directory
           (or directory
-              default-directory)))
-    (color-rg-search search-keyboard search-directory)))
+              default-directory))
+         (search-files
+          (or files
+              "everything")))
+    (color-rg-search search-keyboard search-directory search-files)))
 
 (defun color-rg-search-symbol ()
   (interactive)
@@ -982,11 +1059,12 @@ from `color-rg-cur-search'."
   (interactive)
   (let ((keyword (color-rg-search-keyword color-rg-cur-search))
         (dir (color-rg-search-dir color-rg-cur-search))
+        (files (color-rg-search-files color-rg-cur-search))
         (literal (color-rg-search-literal color-rg-cur-search))
         (case-sensitive (color-rg-search-case-sensitive color-rg-cur-search))
         (no-ignore (color-rg-search-no-ignore color-rg-cur-search)))
     (setcar compilation-arguments
-            (color-rg-build-command keyword dir literal no-ignore case-sensitive))
+            (color-rg-build-command keyword dir files literal no-ignore case-sensitive))
     ;; Reset hit count.
     (setq color-rg-hit-count 0)
 
@@ -1008,6 +1086,18 @@ from `color-rg-cur-search'."
                      (color-rg-search-keyword color-rg-cur-search)))
   (setf (color-rg-search-literal color-rg-cur-search) nil)
   (color-rg-rerun))
+
+(defun color-rg-rerun-change-files()
+  "Rerun last search but prompt for new files."
+  (interactive)
+  (let ((files (color-rg-search-files color-rg-cur-search)))
+    (setf (color-rg-search-files color-rg-cur-search)
+          (completing-read
+           (concat "Repeat search in files (default: [" files "]): ")
+           (color-rg-get-type-aliases)
+           nil nil nil 'color-rg-files-history
+           files))
+    (color-rg-rerun)))
 
 (defun color-rg-rerun-change-dir ()
   "rerun last command but prompt for new dir."

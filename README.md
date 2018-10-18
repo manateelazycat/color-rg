@@ -44,6 +44,7 @@ Bind your favorite key to functions:
 | D          | Delete current line from results                |
 | s          | Re-search with new keyword and default argument |
 | d          | Re-search with new directory                    |
+| z          | Re-search with new files                        |
 | i          | Toggle to include or exclude the ignore files   |
 | c          | Toggle to smart case or case sensitive          |
 | t          | Re-search pattern as literal                    |
@@ -73,6 +74,24 @@ Add this into your emacs config file:
 (define-key isearch-mode-map (kbd "M-s M-s") 'isearch-toggle-color-rg)
 ```
 When using `isearch-forward', type "M-s M-s" to search current isearch string with color-rg.
+
+### Research with new files
+```color-rg-rerun-change-files``` can limit search files with
+GLOB. This function used rg arguments '--type', '--add-type'.
+
+Default search files is "everything" which means use rg without '--type' argument.
+
+If search files is "all", search rg like "rg --type all".
+
+Other complete candidates are mostly read from "rg --type-list"
+command, which is predefined in rg.
+
+Of course you can specified your onw GLOG, just insert them as you
+like. For example, if you input a GLOB like "*mypersonalglob*", which
+match none of the candidates, then, color-rg will call shell command
+like ```"rg --add-type 'custom:*mypersonalglob*' --type custom ..."```.
+
+This function is almost copy from [rg](https://github.com/dajva/rg.el).
 
 ### Contributors
 
