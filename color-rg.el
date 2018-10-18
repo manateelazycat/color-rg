@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 2.7
-;; Last-Updated: 2018-10-11 21:45:36
+;; Version: 2.8
+;; Last-Updated: 2018-10-18 18:21:25
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,9 +67,13 @@
 ;;
 
 ;;; Change log:
+;;
 ;; 2018/10/18
-;;      * add `color-rg-rerun-change-files' to files search files by GLOB. default files is "everything".
-;;      * IMPORTANT: lots of code are copied from `https://github.com/dajva/rg.el'.
+;;      * Add `color-rg-rerun-change-files' to files search files by GLOB. default files is "everything".
+;;      * Add new functions:
+;;		`color-rg-search-symbol-with-type'
+;;		`color-rg-search-project-with-type'
+;;		`color-rg-search-project-rails-with-type'
 ;;
 ;; 2018/10/11
 ;;      * Reset `color-rg-temp-visit-buffers' to avoid deleting the buffer being browsed after multiple searches.
@@ -467,7 +471,7 @@ This function is called from `compilation-filter-hook'."
                                (:copier nil))
   keyword                               ; search keyword
   dir                                   ; base directory
-  files                                  ; files to search
+  files                                 ; files to search
   literal                               ; literal patterh (t or nil)
   case-sensitive                        ; case-sensitive (t or nil)
   no-ignore                             ; toggle no-ignore (t or nil)
@@ -486,7 +490,7 @@ Becomes buffer local in `color-rg-mode' buffers.")
 
 (defconst color-rg-internal-type-aliases
   '(("all" . "all defined type aliases") ; rg --type all
-    ("everything" . "*")) ; rg without '--type' arg
+    ("everything" . "*"))                ; rg without '--type' arg
   "Internal type aliases for special purposes.
 These are not produced by 'rg --type-list' but we need them anyway.")
 
@@ -949,6 +953,14 @@ this function a no-op."
           (goto-char next-change)))
       hit-count)))
 
+(defun color-rg-read-file-type (format-string)
+  (let ((files (color-rg-search-files color-rg-cur-search)))
+    (completing-read
+     (format format-string files)
+     (color-rg-get-type-aliases)
+     nil nil nil 'color-rg-files-history
+     files)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun color-rg-search-input (&optional keyword directory files)
   (interactive)
@@ -977,16 +989,29 @@ this function a no-op."
   (interactive)
   (color-rg-search-input (color-rg-pointer-string) default-directory))
 
+(defun color-rg-search-symbol-with-type ()
+  (interactive)
+  (color-rg-search-input (color-rg-pointer-string) default-directory (color-rg-read-file-type "Filter file by type (default: [ %s ]): ")))
+
 (defun color-rg-search-project ()
   (interactive)
   (require 'projectile)
-  (color-rg-search-input (color-rg-read-input) (projectile-project-root))
-  )
+  (color-rg-search-input (color-rg-read-input) (projectile-project-root)))
+
+(defun color-rg-search-project-with-type ()
+  (interactive)
+  (require 'projectile)
+  (color-rg-search-input (color-rg-read-input) (projectile-project-root) (color-rg-read-file-type "Filter file by type (default: [ %s ]): ")))
 
 (defun color-rg-search-project-rails ()
   (interactive)
   (require 'projectile)
   (color-rg-search-input (color-rg-read-input) (concat (projectile-project-root) "app")))
+
+(defun color-rg-search-project-rails-with-type ()
+  (interactive)
+  (require 'projectile)
+  (color-rg-search-input (color-rg-read-input) (concat (projectile-project-root) "app") (color-rg-read-file-type "Filter file by type (default: [ %s ]): ")))
 
 (defun color-rg-replace-all-matches ()
   (interactive)
@@ -1087,17 +1112,11 @@ from `color-rg-cur-search'."
   (setf (color-rg-search-literal color-rg-cur-search) nil)
   (color-rg-rerun))
 
-(defun color-rg-rerun-change-files()
+(defun color-rg-rerun-change-files ()
   "Rerun last search but prompt for new files."
   (interactive)
-  (let ((files (color-rg-search-files color-rg-cur-search)))
-    (setf (color-rg-search-files color-rg-cur-search)
-          (completing-read
-           (concat "Repeat search in files (default: [" files "]): ")
-           (color-rg-get-type-aliases)
-           nil nil nil 'color-rg-files-history
-           files))
-    (color-rg-rerun)))
+  (setf (color-rg-search-files color-rg-cur-search) (color-rg-read-file-type "Repeat search in files (default: [ %s ]): "))
+  (color-rg-rerun))
 
 (defun color-rg-rerun-change-dir ()
   "rerun last command but prompt for new dir."
@@ -1255,7 +1274,6 @@ from `color-rg-cur-search'."
   (color-rg-update-header-line)
   ;; Turn off readonly mode.
   (read-only-mode -1)
-  ;; Clean keymap.
   ;; Load edit keymap.
   (use-local-map color-rg-mode-edit-map)
   ;; Set edit area.

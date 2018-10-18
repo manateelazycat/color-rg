@@ -19,12 +19,15 @@ If you use Mac, you also need to install [exec-path-from-shell](https://github.c
 ## Usage
 Bind your favorite key to functions:
 
-| Function                      | Description                                  |
-| :--------                     | :----                                        |
-| color-rg-search-input         | Search user's input with current directory   |
-| color-rg-search-symbol        | Search current symbol with current directory |
-| color-rg-search-project       | Search user's input in project               |
-| color-rg-search-project-rails | Search user's input in rails project         |
+| Function                                | Description                                                              |
+| :--------                               | :----                                                                    |
+| color-rg-search-input                   | Search user's input with current directory                               |
+| color-rg-search-symbol                  | Search current symbol with current directory                             |
+| color-rg-search-project                 | Search user's input in project                                           |
+| color-rg-search-project-rails           | Search user's input in rails project                                     |
+| color-rg-search-symbol-with-type        | Search current symbol with current directory and special file extensions |
+| color-rg-search-project-with-type       | Search user's input in project and special file extensions               |
+| color-rg-search-project-rails-with-type | Search user's input in rails project and special file extensions         |
 
 ### Keymap for view mode
 
@@ -86,12 +89,10 @@ If search files is "all", search rg like "rg --type all".
 Other complete candidates are mostly read from "rg --type-list"
 command, which is predefined in rg.
 
-Of course you can specified your onw GLOG, just insert them as you
+Of course you can specified your onw GLOB, just insert them as you
 like. For example, if you input a GLOB like "*mypersonalglob*", which
 match none of the candidates, then, color-rg will call shell command
 like ```"rg --add-type 'custom:*mypersonalglob*' --type custom ..."```.
-
-This function is almost copy from [rg](https://github.com/dajva/rg.el).
 
 ### Contributors
 
