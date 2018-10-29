@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 2.9
-;; Last-Updated: 2018-10-19 17:57:36
+;; Version: 3.0
+;; Last-Updated: 2018-10-29 09:29:13
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -68,8 +68,11 @@
 
 ;;; Change log:
 ;;
+;; 2018/10/29
+;;	* Use `string-trim' instead `s-trim' to remove require of `s.el'
+;;
 ;; 2018/10/19
-;;	* Add option `color-rg-kill-temp-buffer-p'.
+;;      * Add option `color-rg-kill-temp-buffer-p'.
 ;;
 ;; 2018/10/18
 ;;      * Add `color-rg-rerun-change-files' to files search files by GLOB. default files is "everything".
@@ -536,8 +539,8 @@ filtered out."
     (mapcar
      (lambda (type-alias)
        (setq type-alias (split-string type-alias ":" t))
-       (cons (s-trim (car type-alias))
-             (s-trim
+       (cons (string-trim (car type-alias))
+             (string-trim
               (mapconcat 'identity
                          (split-string (cadr type-alias) "," t )
                          " "))))
