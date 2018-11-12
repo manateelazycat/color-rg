@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 3.1
-;; Last-Updated: 2018-11-01 21:39:40
+;; Version: 3.3
+;; Last-Updated: 2018-11-12 18:42:33
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2018/11/12
+;;	* Remove Mac color, use hex color instead.
 ;;
 ;; 2018/11/01
 ;;      * Remove `projectile' depend.
@@ -277,12 +280,12 @@ Anyway, you can set this option with nil if you don't like color-rg kill any buf
   :group 'color-rg)
 
 (defface color-rg-font-lock-mark-changed
-  '((t (:foreground "White" :background "SystemBlueColor" :bold t)))
+  '((t (:foreground "White" :background "#007aff" :bold t)))
   "Face for keyword match."
   :group 'color-rg)
 
 (defface color-rg-font-lock-mark-deleted
-  '((t (:foreground "SystemRedColor" :bold t)))
+  '((t (:foreground "#ff3b30" :bold t)))
   "Face for keyword match."
   :group 'color-rg)
 
