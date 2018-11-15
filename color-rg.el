@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 3.3
-;; Last-Updated: 2018-11-12 18:42:33
+;; Version: 3.4
+;; Last-Updated: 2018-11-16 00:53:33
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -68,8 +68,11 @@
 
 ;;; Change log:
 ;;
+;; 2018/11/16
+;;	* Add `color-rg-file-extension' function to support more granular extension filtering, such as, js.erb and html.erb.
+;;
 ;; 2018/11/12
-;;	* Remove Mac color, use hex color instead.
+;;      * Remove Mac color, use hex color instead.
 ;;
 ;; 2018/11/01
 ;;      * Remove `projectile' depend.
@@ -870,6 +873,9 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   ;; Update hit number in header line.
   (color-rg-update-header-line-hits))
 
+(defun color-rg-file-extension (file)
+  (string-join (cdr (split-string (file-name-nondirectory file) "\\.")) "."))
+
 (defun color-rg-filter-files (match-files)
   (let (file-extensions start end)
     (save-excursion
@@ -879,7 +885,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
         (setq start (point))
         (setq filename (buffer-substring-no-properties start end))
         (end-of-line)
-        (add-to-list 'file-extensions (file-name-extension filename))))
+        (add-to-list 'file-extensions (color-rg-file-extension filename))))
     (if (< (length file-extensions) 2)
         (message (format "Has one type files now."))
       (setq filter-extension (ido-completing-read (if match-files
@@ -893,7 +899,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
           (while (setq end (search-forward-regexp color-rg-regexp-file nil t))
             (beginning-of-line)
             (setq start (point))
-            (setq file-extension (file-name-extension (buffer-substring-no-properties start end)))
+            (setq file-extension (color-rg-file-extension (buffer-substring-no-properties start end)))
             (if match-files
                 (if (string-equal file-extension filter-extension)
                     (end-of-line)
