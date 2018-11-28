@@ -378,6 +378,7 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "C-c C-h") 'color-rg-jump-next-file)
     (define-key map (kbd "C-c C-l") 'color-rg-jump-prev-file)
     (define-key map (kbd "C-c <C-return>") 'color-rg-open-file)
+    (define-key map (kbd "C-c C-v") 'color-rg-switch-to-view-mode)
 
     (define-key map (kbd "C-c C-d") 'color-rg-delete-line)
     (define-key map (kbd "C-c C-D") 'color-rg-delete-all-lines)
@@ -831,6 +832,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
     ))
 
 (defun color-rg-switch-to-view-mode ()
+  (interactive)
   (with-current-buffer color-rg-buffer
     ;; Do clean work.
     (dolist (line color-rg-changed-lines)

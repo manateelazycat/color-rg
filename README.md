@@ -65,6 +65,7 @@ Bind your favorite key to functions:
 | C-c C-h    | Jump to next match file                         |
 | C-c C-l    | Jump to previous match file                     |
 | C-c C-RET  | Open file relative to match line                |
+| C-c C-v    | Disable edit mode                               |
 | C-c C-d    | Delete current line                             |
 | C-c C-r    | Recover current line                            |
 | C-c C-R    | Recover buffer content                          |
