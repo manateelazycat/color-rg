@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 3.4
-;; Last-Updated: 2018-11-16 00:53:33
+;; Version: 3.5
+;; Last-Updated: 2018-12-02 23:28:54
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -68,8 +68,11 @@
 
 ;;; Change log:
 ;;
+;; 2018/12/02
+;;      * Use `get-text-property' improve algorithm of `color-rg-in-string-p'.
+;;
 ;; 2018/11/16
-;;	* Add `color-rg-file-extension' function to support more granular extension filtering, such as, js.erb and html.erb.
+;;      * Add `color-rg-file-extension' function to support more granular extension filtering, such as, js.erb and html.erb.
 ;;
 ;; 2018/11/12
 ;;      * Remove Mac color, use hex color instead.
@@ -670,11 +673,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
     (parse-partial-sexp (point) point)))
 
 (defun color-rg-in-string-p (&optional state)
-  "True if the parse state is within a double-quote-delimited string.
-If no parse state is supplied, compute one from the beginning of the
-  defun to the point."
-  (and (nth 3 (or state (color-rg-current-parse-state)))
-       t))
+  (or (nth 3 (or state (insert-translated-name-current-parse-state)))
+      (eq (get-text-property (point) 'face) 'font-lock-string-face)))
 
 (defun color-rg-string-start+end-points (&optional state)
   "Return a cons of the points of open and close quotes of the string.
