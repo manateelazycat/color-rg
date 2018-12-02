@@ -674,7 +674,9 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
 (defun color-rg-in-string-p (&optional state)
   (or (nth 3 (or state (insert-translated-name-current-parse-state)))
-      (eq (get-text-property (point) 'face) 'font-lock-string-face)))
+      (eq (get-text-property (point) 'face) 'font-lock-string-face)
+      (eq (get-text-property (point) 'face) 'font-lock-doc-face)
+      ))
 
 (defun color-rg-string-start+end-points (&optional state)
   "Return a cons of the points of open and close quotes of the string.
