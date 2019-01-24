@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 3.8
-;; Last-Updated: 2018-12-27 22:07:14
+;; Version: 3.9
+;; Last-Updated: 2019-01-24 22:13:35
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/01/24
+;;      * Expand org block if current file is *.org file.
 ;;
 ;; 2018/12/27
 ;;      * Use `pulse-momentary-highlight-region' instead `thing-edit-flash-line'.
@@ -1256,6 +1259,9 @@ from `color-rg-cur-search'."
       ;; NOTE:
       ;; Don't turn on FORCE option of `move-to-column', it will modification search file when force move to target column.
       (move-to-column (- match-column 1))
+      ;; Expand org block if current file is *.org file.
+      (when (string-equal (color-rg-file-extension match-file) "org")
+        (org-reveal))
       ;; Flash match line.
       (let ((pulse-iterations 1)
             (pulse-delay color-rg-flash-line-delay))
