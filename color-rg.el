@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 3.9
-;; Last-Updated: 2019-01-24 22:13:35
+;; Version: 4.0
+;; Last-Updated: 2019-01-25 08:29:02
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/01/25
+;;      * Move two chars backward when current link is format as [[link]]
 ;;
 ;; 2019/01/24
 ;;      * Expand org block if current file is *.org file.
@@ -1254,14 +1257,8 @@ from `color-rg-cur-search'."
       ;; Add to temp list if file's buffer is not exist.
       (unless match-buffer
         (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
-      ;; Jump to match position.
-      (goto-line match-line)
-      ;; NOTE:
-      ;; Don't turn on FORCE option of `move-to-column', it will modification search file when force move to target column.
-      (move-to-column (- match-column 1))
-      ;; Expand org block if current file is *.org file.
-      (when (string-equal (color-rg-file-extension match-file) "org")
-        (org-reveal))
+      ;; Jump to match point.
+      (color-rg-jump-to-match-point match-line match-column)
       ;; Flash match line.
       (let ((pulse-iterations 1)
             (pulse-delay color-rg-flash-line-delay))
@@ -1275,6 +1272,33 @@ from `color-rg-cur-search'."
     (unless (looking-at "[[:space:]]*$")
       (forward-char (- match-column 1)))
     ))
+
+(defun color-rg-jump-to-match-point (match-line match-column)
+  (cond ((derived-mode-p 'org-mode)
+         ;; Jump to match position.
+         (goto-line match-line)
+         ;; NOTE:
+         ;; Don't turn on FORCE option of `move-to-column', it will modification search file when force move to target column.
+         (move-to-column (- match-column 1))
+         ;; Move two chars backward when current link is format as [[link]]
+         (let* ((context
+                 (org-element-lineage
+                  (org-element-context)
+                  '(clock footnote-definition footnote-reference headline
+                          inlinetask link timestamp)
+                  t))
+                (type (org-element-type context)))
+           (cond ((and (eq type 'link)
+                       (looking-back "\\[\\[.*" (line-beginning-position)))
+                  (backward-char 2))))
+         ;; Expand org block if current file is *.org file.
+         (org-reveal))
+        (t
+         ;; Jump to match position.
+         (goto-line match-line)
+         ;; NOTE:
+         ;; Don't turn on FORCE option of `move-to-column', it will modification search file when force move to target column.
+         (move-to-column (- match-column 1)))))
 
 (defun color-rg-switch-to-edit-mode ()
   (interactive)
