@@ -225,7 +225,7 @@
 (defcustom color-rg-mode-hook '()
   "color-rg mode hook."
   :type 'hook
-  :group 'color-rg-mode)
+  :group 'color-rg)
 
 (defcustom color-rg-custom-type-aliases
   '(("gn" .    "*.gn *.gni")
