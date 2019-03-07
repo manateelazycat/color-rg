@@ -31,32 +31,34 @@ Bind your favorite key to functions:
 
 ### Keymap for view mode
 
-| Key        | Description                                     |
-| :--------: | :----                                           |
-| C-a        | Jump to first editable position of current line |
-| Tab        | Jump to next match keyword                      |
-| Back Tab   | Jump to previous match keyword                  |
-| j          | Jump to next match keyword                      |
-| k          | Jump to previous match keyword                  |
-| h          | Jump to next match file                         |
-| l          | Jump to previous match file                     |
-| RET        | Open file relative to match line                |
-| Ctrl + m   | Open file relative to match line                |
-| r          | Replace all matches                             |
-| f          | Filter results match regexp                     |
-| F          | Filter results not match regexp                 |
-| x          | Filter results match file extension             |
-| X          | Filter results not match file extension         |
-| u          | Don't filter file extension                     |
-| D          | Delete current line from results                |
-| i          | Toggle to include or exclude the ignore files   |
-| t          | Re-search pattern as literal                    |
-| c          | Toggle to smart case or case sensitive          |
-| s          | Re-search with new keyword and default argument |
-| d          | Re-search with new directory                    |
-| z          | Re-search with new files                        |
-| e          | Enable edit mode                                |
-| q          | Quit                                            |
+| Key        | Description                                                            |
+| :--------: | :----                                                                  |
+| C-a        | Jump to first editable position of current line                        |
+| Tab        | Jump to next match keyword                                             |
+| Back Tab   | Jump to previous match keyword                                         |
+| j          | Jump to next match keyword                                             |
+| k          | Jump to previous match keyword                                         |
+| h          | Jump to next match file                                                |
+| l          | Jump to previous match file                                            |
+| RET        | Open file relative to match line                                       |
+| Ctrl + m   | Open file relative to match line                                       |
+| r          | Replace all matches                                                    |
+| f          | Filter results match regexp                                            |
+| F          | Filter results not match regexp                                        |
+| x          | Filter results match file extension                                    |
+| X          | Filter results not match file extension                                |
+| u          | Don't filter file extension                                            |
+| D          | Delete current line from results                                       |
+| i          | Toggle to include or exclude the ignore files                          |
+| t          | Re-search pattern as literal                                           |
+| c          | Toggle to smart case or case sensitive                                 |
+| s          | Re-search with new keyword and default argument                        |
+| d          | Re-search with new directory                                           |
+| z          | Re-search with new files                                               |
+| Z          | Rerun last search but prompt for new files which will NOT be searched. |
+| C          | Rerun rg with customized arguments.                                    |
+| e          | Enable edit mode                                                       |
+| q          | Quit                                                                   |
 
 ### Keymap for edit mode
 
