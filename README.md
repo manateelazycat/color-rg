@@ -34,24 +34,27 @@ Bind your favorite key to functions:
 | Key        | Description                                     |
 | :--------: | :----                                           |
 | C-a        | Jump to first editable position of current line |
+| Tab        | Jump to next match keyword                      |
+| Back Tab   | Jump to previous match keyword                  |
 | j          | Jump to next match keyword                      |
 | k          | Jump to previous match keyword                  |
 | h          | Jump to next match file                         |
 | l          | Jump to previous match file                     |
 | RET        | Open file relative to match line                |
+| Ctrl + m   | Open file relative to match line                |
 | r          | Replace all matches                             |
 | f          | Filter results match regexp                     |
 | F          | Filter results not match regexp                 |
 | x          | Filter results match file extension             |
 | X          | Filter results not match file extension         |
+| u          | Don't filter file extension                     |
 | D          | Delete current line from results                |
+| i          | Toggle to include or exclude the ignore files   |
+| t          | Re-search pattern as literal                    |
+| c          | Toggle to smart case or case sensitive          |
 | s          | Re-search with new keyword and default argument |
 | d          | Re-search with new directory                    |
 | z          | Re-search with new files                        |
-| i          | Toggle to include or exclude the ignore files   |
-| c          | Toggle to smart case or case sensitive          |
-| t          | Re-search pattern as literal                    |
-| m          | Re-search with customized rg argument           |
 | e          | Enable edit mode                                |
 | q          | Quit                                            |
 
@@ -67,6 +70,7 @@ Bind your favorite key to functions:
 | C-c C-RET  | Open file relative to match line                |
 | C-c C-v    | Disable edit mode                               |
 | C-c C-d    | Delete current line                             |
+| C-c C-D    | Delete all lines                                |
 | C-c C-r    | Recover current line                            |
 | C-c C-R    | Recover buffer content                          |
 | C-c C-q    | Quit                                            |
