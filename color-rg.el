@@ -1012,9 +1012,13 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       hit-count)))
 
 (defun color-rg-read-file-type (format-string)
-  (let ((files (color-rg-search-files color-rg-cur-search)))
+  (let* ((files (color-rg-search-files color-rg-cur-search))
+         (default-files (if (and (color-rg-search-file-exclude color-rg-cur-search)
+                                (equal files "everything"))
+                           "nothing"
+                         files)))
     (completing-read
-     (format format-string files)
+     (format format-string default-files)
      (color-rg-get-type-aliases)
      nil nil nil 'color-rg-files-history
      files)))
@@ -1184,7 +1188,7 @@ from `color-rg-cur-search'."
 This function is the opposite of `color-rg-rerun-change-files'"
   (interactive)
   (setf (color-rg-search-file-exclude color-rg-cur-search) t)
-  (setf (color-rg-search-files color-rg-cur-search) (color-rg-read-file-type "Repeat search in files (default: [ %s ]): "))
+  (setf (color-rg-search-files color-rg-cur-search) (color-rg-read-file-type "Repeat search exclude files (default: [ %s ]): "))
   (color-rg-rerun))
 
 (defun color-rg-rerun-change-dir ()
