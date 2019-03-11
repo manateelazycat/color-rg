@@ -86,7 +86,7 @@ Add this into your emacs config file:
 When using `isearch-forward', type "M-s M-s" to search current isearch string with color-rg.
 
 ### Research with new files
-```color-rg-rerun-change-files``` can limit search files with
+`color-rg-rerun-change-files` can limit search files with
 GLOB. This function used rg arguments '--type', '--add-type'.
 
 Default search files is "everything" which means use rg without '--type' argument.
@@ -96,10 +96,32 @@ If search files is "all", search rg like "rg --type all".
 Other complete candidates are mostly read from "rg --type-list"
 command, which is predefined in rg.
 
-Of course you can specified your onw GLOB, just insert them as you
-like. For example, if you input a GLOB like "*mypersonalglob*", which
+Of course you can specify your own GLOB, just insert them as you
+like. For example, if you input a GLOB like `*mypersonalglob*`, which
 match none of the candidates, then, color-rg will call shell command
-like ```"rg --add-type 'custom:*mypersonalglob*' --type custom ..."```.
+like:
+```
+"rg --add-type 'custom:*mypersonalglob*' --type custom ..."
+```
+
+### Research with customized arguments
+If none of the preset meet your requirements,
+`color-rg-customized-search` can release the full power of `rg`.
+
+When `color-rg-customized-search` is called,
+the full command of rg will show up, and you can add any argument to rg as in shell.
+
+you must escape special characters when using `color-rg-customized-search`,
+for example:
+
+```
+rg --type-add custom\:\*.el
+# or
+rg --type-add 'custom:*.el'
+# or
+rg --type-add "custom:*.el"
+```
+
 
 ### Contributors
 
