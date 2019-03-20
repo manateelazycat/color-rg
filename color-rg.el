@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.2
-;; Last-Updated: 2019-01-29 20:46:00
+;; Version: 4.3
+;; Last-Updated: 2019-03-20 12:48:48
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,9 +67,11 @@
 ;;
 
 ;;; Change log:
-
-
-;; 2019-03-07
+;;
+;; 2019/03/20
+;;      * Add `ignore-errors' to make sure cursor will back to color-rg buffer.
+;;
+;; 2019/03/07
 ;;      * add `olor-rg-rerun-change-exclude-files' which can filter searched files by glob, This is the opposite of `olor-rg-rerun-change-files'
 ;;      * add `color-rg-customized-search' which give users more power and freedom.
 ;;
@@ -533,11 +535,11 @@ This function is called from `compilation-filter-hook'."
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
                                (:constructor color-rg-search-new (pattern dir))
                                (:copier nil))
-  keyword                               ; search keyword
-  dir                                   ; base directory
-  files                                 ; files to search
-  file-exclude                          ; toggle exclude files, t means not search these files
-  literal                               ; literal patterh (t or nil)
+  keyword       ; search keyword
+  dir           ; base directory
+  files         ; files to search
+  file-exclude  ; toggle exclude files, t means not search these files
+  literal       ; literal patterh (t or nil)
   case-sensitive                        ; case-sensitive (t or nil)
   no-ignore                             ; toggle no-ignore (t or nil)
   mode                                  ; view or edit mode
@@ -1014,9 +1016,9 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 (defun color-rg-read-file-type (format-string)
   (let* ((files (color-rg-search-files color-rg-cur-search))
          (default-files (if (and (color-rg-search-file-exclude color-rg-cur-search)
-                                (equal files "everything"))
-                           "nothing"
-                         files)))
+                                 (equal files "everything"))
+                            "nothing"
+                          files)))
     (completing-read
      (format format-string default-files)
      (color-rg-get-type-aliases)
@@ -1324,16 +1326,19 @@ This function is the opposite of `color-rg-rerun-change-files'"
       (unless match-buffer
         (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
       ;; Jump to match point.
-      (cond ((color-rg-is-org-file match-file)
-             ;; Jump to match position.
-             (color-rg-move-to-point match-line match-column)
-             ;; Expand org block if current file is *.org file.
-             (org-reveal)
-             ;; Jump to link beginning if keyword in content area.
-             (when in-org-link-content-p
-               (search-backward-regexp "\\[\\[" (line-beginning-position) t)))
-            (t
-             (color-rg-move-to-point match-line match-column)))
+      ;; We use `ignore-errors' to make sure cursor will back to color-rg buffer
+      ;; even target line is not exists in search file (such as delete by user).
+      (ignore-errors
+        (cond ((color-rg-is-org-file match-file)
+               ;; Jump to match position.
+               (color-rg-move-to-point match-line match-column)
+               ;; Expand org block if current file is *.org file.
+               (org-reveal)
+               ;; Jump to link beginning if keyword in content area.
+               (when in-org-link-content-p
+                 (search-backward-regexp "\\[\\[" (line-beginning-position) t)))
+              (t
+               (color-rg-move-to-point match-line match-column))))
       ;; Flash match line.
       (color-rg-flash-line))
     ;; Keep cursor in search buffer's window.
