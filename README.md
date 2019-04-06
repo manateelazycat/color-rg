@@ -23,7 +23,8 @@ Bind your favorite key to functions:
 | :--------                               | :----                                                                    |
 | color-rg-search-input                   | Search user's input with current directory                               |
 | color-rg-search-symbol                  | Search current symbol with current directory                             |
-| color-rg-search-project                 | Search user's input in project                                           |
+| color-rg-search-input-in-project        | Search user's input in project                                           |
+| color-rg-search-symbol-in-project       | Search current symbol in project                                         |
 | color-rg-search-project-rails           | Search user's input in rails project                                     |
 | color-rg-search-symbol-with-type        | Search current symbol with current directory and special file extensions |
 | color-rg-search-project-with-type       | Search user's input in project and special file extensions               |

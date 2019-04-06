@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.3
-;; Last-Updated: 2019-03-20 12:48:48
+;; Version: 4.4
+;; Last-Updated: 2019-04-06 22:01:49
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/04/06
+;;      * Add commands: `color-rg-search-input-in-project' and `color-rg-search-symbol-in-project'.
 ;;
 ;; 2019/03/20
 ;;      * Add `ignore-errors' to make sure cursor will back to color-rg buffer.
@@ -1062,9 +1065,15 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       (expand-file-name (cdr project))
     default-directory))
 
+(defalias 'color-rg-search-input-in-project 'color-rg-search-project)
+
 (defun color-rg-search-project ()
   (interactive)
   (color-rg-search-input (color-rg-read-input) (color-rg-project-root-dir)))
+
+(defun color-rg-search-symbol-in-project ()
+  (interactive)
+  (color-rg-search-input (color-rg-pointer-string) (color-rg-project-root-dir)))
 
 (defun color-rg-search-project-with-type ()
   (interactive)
