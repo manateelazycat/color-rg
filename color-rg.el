@@ -348,7 +348,7 @@ used to restore window configuration after apply changed.")
 (defvar color-rg-hit-count 0
   "Search keyword hit counter.")
 
-(defvar color-rg-regexp-file "^[/\\~].*"
+(defvar color-rg-regexp-file "^[/\\~].*\\|^[a-z]:.*"
   "Regexp to match filename.")
 
 (defvar color-rg-regexp-split-line "\n\n"
@@ -446,7 +446,7 @@ used to restore window configuration after apply changed.")
      ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 2 'color-rg-font-lock-position-splitter)
      ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 3 'color-rg-font-lock-column-number)
      ("^\\([1-9][0-9]*\\)\\(:\\)\\([1-9][0-9]*\\)\\(:\\)" 4 'color-rg-font-lock-position-splitter)
-     ("^[/\\~].*" . 'color-rg-font-lock-file)
+     ("^[/\\~].*\\|^[a-z]:.*" . 'color-rg-font-lock-file)
      ))
   ;; NOTE:
   ;; Because search line maybe just contains *half* of string/comment that make rest content of buffer mark as string.
