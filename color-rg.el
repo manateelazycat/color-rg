@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.5
-;; Last-Updated: 2019-04-13 10:23:09
+;; Version: 4.6
+;; Last-Updated: 2019-04-13 14:14:12
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -70,6 +70,7 @@
 ;;
 ;; 2019/04/13
 ;;      * View the function name when navigate in match line.
+;;      * Fix nil error of which-function.
 ;;
 ;; 2019/04/06
 ;;      * Add commands: `color-rg-search-input-in-project' and `color-rg-search-symbol-in-project'.
@@ -1378,11 +1379,13 @@ This function is the opposite of `color-rg-rerun-change-files'"
     (pulse-momentary-highlight-one-line (point) 'color-rg-font-lock-flash)
     ;; View the function name when navigate in match line.
     (when color-rg-show-function-name-p
-      (message "Located in function: %s"
-               (propertize
-                (which-function)
-                'face 'color-rg-font-lock-function-location
-                )))))
+      (let ((function-name (which-function)))
+        (when function-name
+          (message "Located in function: %s"
+                   (propertize
+                    function-name
+                    'face 'color-rg-font-lock-function-location
+                    )))))))
 
 (defun color-rg-in-org-link-content-p ()
   (and (looking-back "\\[\\[.*" (line-beginning-position))
