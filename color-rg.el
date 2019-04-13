@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.4
-;; Last-Updated: 2019-04-06 22:01:49
+;; Version: 4.5
+;; Last-Updated: 2019-04-13 10:23:09
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/04/13
+;;      * View the function name when navigate in match line.
 ;;
 ;; 2019/04/06
 ;;      * Add commands: `color-rg-search-input-in-project' and `color-rg-search-symbol-in-project'.
@@ -264,6 +267,13 @@ Anyway, you can set this option with nil if you don't like color-rg kill any buf
   :type 'boolean
   :group 'color-rg)
 
+(defcustom color-rg-show-function-name-p t
+  "View the function name when navigate in match line.
+
+Default is enable, set this variable to nil if you don't like this feature."
+  :type 'boolean
+  :group 'color-rg)
+
 (defface color-rg-font-lock-header-line-text
   '((t (:foreground "Green3" :bold t)))
   "Face for header line text."
@@ -327,6 +337,11 @@ Anyway, you can set this option with nil if you don't like color-rg kill any buf
 (defface color-rg-font-lock-flash
   '((t (:inherit highlight)))
   "Face to flash the current line."
+  :group 'color-rg)
+
+(defface color-rg-font-lock-function-location
+  '((t (:foreground "Gold" :bold t)))
+  "Face for show function location."
   :group 'color-rg)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1359,7 +1374,15 @@ This function is the opposite of `color-rg-rerun-change-files'"
 (defun color-rg-flash-line ()
   (let ((pulse-iterations 1)
         (pulse-delay color-rg-flash-line-delay))
-    (pulse-momentary-highlight-one-line (point) 'color-rg-font-lock-flash)))
+    ;; Flash match line.
+    (pulse-momentary-highlight-one-line (point) 'color-rg-font-lock-flash)
+    ;; View the function name when navigate in match line.
+    (when color-rg-show-function-name-p
+      (message "Located in function: %s"
+               (propertize
+                (which-function)
+                'face 'color-rg-font-lock-function-location
+                )))))
 
 (defun color-rg-in-org-link-content-p ()
   (and (looking-back "\\[\\[.*" (line-beginning-position))
