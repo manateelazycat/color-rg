@@ -530,7 +530,7 @@ This function is called from `compilation-filter-hook'."
                    ((string-prefix-p "exited abnormally with code" msg)
                     ;; Switch to literal search automaticity when parsing keyword regexp failed.
                     (with-current-buffer color-rg-buffer
-                      (cond ((search-forward-regexp "^Error parsing regex near" nil t)
+                      (cond ((or (search-forward-regexp "^Error parsing regex near" nil t) (search-forward-regexp "^regex parse error" nil t))
                              (run-at-time "2sec" nil
                                           (lambda ()
                                             (message "COLOR-RG: parsing keyword regexp failed, switch to literal search automaticity.")))
