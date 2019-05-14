@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.6
-;; Last-Updated: 2019-04-13 14:14:12
+;; Version: 4.7
+;; Last-Updated: 2019-05-15 01:44:25
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/05/15
+;;      * Add new functions: `color-rg-search-input-in-current-file' and `color-rg-search-symbol-in-current-file'
 ;;
 ;; 2019/04/13
 ;;      * View the function name when navigate in match line.
@@ -1075,6 +1078,14 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 (defun color-rg-search-symbol-with-type ()
   (interactive)
   (color-rg-search-input (color-rg-pointer-string) default-directory (color-rg-read-file-type "Filter file by type (default: [ %s ]): ")))
+
+(defun color-rg-search-input-in-current-file ()
+  (interactive)
+  (color-rg-search-input (color-rg-read-input) default-directory (file-name-nondirectory (buffer-file-name))))
+
+(defun color-rg-search-symbol-in-current-file ()
+  (interactive)
+  (color-rg-search-input (color-rg-pointer-string) default-directory (file-name-nondirectory (buffer-file-name))))
 
 (defun color-rg-project-root-dir ()
   (-if-let (project (project-current))
