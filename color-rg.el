@@ -630,7 +630,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
   (let ((command-line
          (append
 
-          (list "--column --color=always")
+          (list "--column --color=always -H")
 
           ;; NOTE:
           ;;
@@ -1081,11 +1081,11 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 
 (defun color-rg-search-input-in-current-file ()
   (interactive)
-  (color-rg-search-input (color-rg-read-input) default-directory (file-name-nondirectory (buffer-file-name))))
+  (color-rg-search-input (color-rg-read-input) (expand-file-name (buffer-file-name))))
 
 (defun color-rg-search-symbol-in-current-file ()
   (interactive)
-  (color-rg-search-input (color-rg-pointer-string) default-directory (file-name-nondirectory (buffer-file-name))))
+  (color-rg-search-input (color-rg-pointer-string) (expand-file-name (buffer-file-name))))
 
 (defun color-rg-project-root-dir ()
   (-if-let (project (project-current))
@@ -1198,7 +1198,7 @@ from `color-rg-cur-search'."
 
     ;; compilation-directory is used as search dir and
     ;; default-directory is used as the base for file paths.
-    (setq compilation-directory dir)
+    (setq compilation-directory (file-name-directory dir))
     (setq default-directory compilation-directory)
     (color-rg-recompile)
     (color-rg-update-header-line)
@@ -1234,9 +1234,10 @@ This function is the opposite of `color-rg-rerun-change-files'"
   "rerun last command but prompt for new dir."
   (interactive)
   (setf (color-rg-search-dir color-rg-cur-search)
-        (read-directory-name "In directory: "
-                             (color-rg-search-dir color-rg-cur-search) nil))
+        (read-file-name "In file: "
+                        (file-name-directory (color-rg-search-dir color-rg-cur-search)) nil))
   (color-rg-rerun))
+
 
 (defun color-rg-rerun-literal (&optional nointeractive)
   "Re-search as literal."
