@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.7
-;; Last-Updated: 2019-05-15 01:44:25
+;; Version: 4.8
+;; Last-Updated: 2019-05-18 21:13:45
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/05/18
+;;      * Remove dash.el dependence.
 ;;
 ;; 2019/05/15
 ;;      * improve new function: `color-rg-search-input-in-current-file' and `color-rg-search-symbol-in-current-file'
@@ -561,14 +564,14 @@ This function is called from `compilation-filter-hook'."
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
                                (:constructor color-rg-search-new (pattern dir))
                                (:copier nil))
-  keyword                     ; search keyword
-  dir                         ; base directory
-  globs                       ; filename only match these globs will be searched
-  file-exclude                ; toggle exclude files, t means filename NOT match the globs will be searched
-  literal                     ; literal patterh (t or nil)
-  case-sensitive              ; case-sensitive (t or nil)
-  no-ignore                   ; toggle no-ignore (t or nil)
-  mode                        ; view or edit mode
+  keyword           ; search keyword
+  dir               ; base directory
+  globs             ; filename only match these globs will be searched
+  file-exclude ; toggle exclude files, t means filename NOT match the globs will be searched
+  literal      ; literal patterh (t or nil)
+  case-sensitive                        ; case-sensitive (t or nil)
+  no-ignore                             ; toggle no-ignore (t or nil)
+  mode                                  ; view or edit mode
   )
 
 (defvar color-rg-cur-search (color-rg-search-create)
@@ -1092,9 +1095,10 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   (color-rg-search-input (color-rg-pointer-string) (expand-file-name (buffer-file-name))))
 
 (defun color-rg-project-root-dir ()
-  (-if-let (project (project-current))
-      (expand-file-name (cdr project))
-    default-directory))
+  (let ((project (project-current)))
+    (if project
+        (expand-file-name (cdr project))
+      default-directory)))
 
 (defalias 'color-rg-search-input-in-project 'color-rg-search-project)
 
@@ -1396,6 +1400,7 @@ This function is the opposite of `color-rg-rerun-change-globs'"
     (pulse-momentary-highlight-one-line (point) 'color-rg-font-lock-flash)
     ;; View the function name when navigate in match line.
     (when color-rg-show-function-name-p
+      (require 'which-func)
       (let ((function-name (which-function)))
         (when function-name
           (message "Located in function: %s"
