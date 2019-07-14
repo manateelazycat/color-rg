@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.8
-;; Last-Updated: 2019-05-18 21:13:45
+;; Version: 4.9
+;; Last-Updated: 2019-07-14 22:12:19
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/07/14
+;;      * Use `inhibit-message' optimize the speed of `color-rg-replace-all-matches' when awesome-tray is enable.
 ;;
 ;; 2019/05/18
 ;;      * Remove dash.el dependence.
@@ -1125,16 +1128,21 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 (defun color-rg-replace-all-matches ()
   (interactive)
   (save-excursion
-    (with-current-buffer color-rg-buffer
-      (let* ((search-keyword (color-rg-search-keyword color-rg-cur-search))
-             (replace-text (read-string (format "Replace '%s' all matches with: " search-keyword) search-keyword)))
-        (color-rg-switch-to-edit-mode)
-        (if (color-rg-search-literal color-rg-cur-search)
-            (query-replace search-keyword replace-text nil (point-min) (point-max))
-          (query-replace-regexp search-keyword replace-text nil (point-min) (point-max)))
-        (color-rg-apply-changed)
-        (color-rg-switch-to-view-mode)
-        (setf (color-rg-search-keyword color-rg-cur-search) replace-text)))))
+    (let (changed-line-number)
+      (let ((inhibit-message t)) ; don't flush to echo area when apply changed, optimise for color-rg
+        (with-current-buffer color-rg-buffer
+          (let* ((search-keyword (color-rg-search-keyword color-rg-cur-search))
+                 (replace-text (read-string (format "Replace '%s' all matches with: " search-keyword) search-keyword)))
+            (color-rg-switch-to-edit-mode)
+            (if (color-rg-search-literal color-rg-cur-search)
+                (query-replace search-keyword replace-text nil (point-min) (point-max))
+              (query-replace-regexp search-keyword replace-text nil (point-min) (point-max)))
+            (setq changed-line-number (length color-rg-changed-lines))
+            (color-rg-apply-changed)
+            (color-rg-switch-to-view-mode)
+            (setf (color-rg-search-keyword color-rg-cur-search) replace-text)
+            )))
+      (message "Replace %s lines" changed-line-number))))
 
 (defun color-rg-filter-match-results ()
   (interactive)
@@ -1551,29 +1559,30 @@ Function `move-to-column' can't handle mixed string of Chinese and English corre
     ;; Save window configuration before do apply.
     (setq color-rg-window-configuration-before-apply (current-window-configuration))
     ;; Apply changed.
-    (save-excursion
-      (dolist (line color-rg-changed-lines)
-        (let (match-file match-line changed-line-content)
-          (setq changed-line-content (color-rg-get-line-content color-rg-buffer line))
-          (with-current-buffer color-rg-buffer
-            ;; Get match file and line.
-            (goto-line line)
-            (setq match-file (color-rg-get-match-file))
-            (setq match-line (color-rg-get-match-line)))
-          ;; Open file in other window.
-          (find-file match-file)
-          ;; Remove from temp list if file's buffer is exist.
-          (setq color-rg-temp-visit-buffers (remove (current-buffer) color-rg-temp-visit-buffers))
-          ;; Kill target line.
-          (goto-line match-line)
-          (kill-line)
-          ;; Insert change line.
-          (if (string-equal changed-line-content "")
-              ;; Kill empty line if line mark as deleted.
-              (kill-line)
-            ;; Otherwise insert new line into file.
-            (insert changed-line-content))
-          )))
+    (let ((inhibit-message t)) ; don't flush to echo area when apply changed, optimise for color-rg
+      (save-excursion
+        (dolist (line color-rg-changed-lines)
+          (let (match-file match-line changed-line-content)
+            (setq changed-line-content (color-rg-get-line-content color-rg-buffer line))
+            (with-current-buffer color-rg-buffer
+              ;; Get match file and line.
+              (goto-line line)
+              (setq match-file (color-rg-get-match-file))
+              (setq match-line (color-rg-get-match-line)))
+            ;; Open file in other window.
+            (find-file match-file)
+            ;; Remove from temp list if file's buffer is exist.
+            (setq color-rg-temp-visit-buffers (remove (current-buffer) color-rg-temp-visit-buffers))
+            ;; Kill target line.
+            (goto-line match-line)
+            (kill-line)
+            ;; Insert change line.
+            (if (string-equal changed-line-content "")
+                ;; Kill empty line if line mark as deleted.
+                (kill-line)
+              ;; Otherwise insert new line into file.
+              (insert changed-line-content))
+            ))))
     ;; Restore window configuration before apply changed.
     (when color-rg-window-configuration-before-apply
       (set-window-configuration color-rg-window-configuration-before-apply)
