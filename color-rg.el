@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 4.9
-;; Last-Updated: 2019-07-14 22:12:19
+;; Version: 5.0
+;; Last-Updated: 2019-07-15 21:35:18
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/07/15
+;;      * Don't print "Mark Set" message when call `color-rg-open-file' function.
 ;;
 ;; 2019/07/14
 ;;      * Use `inhibit-message' optimize the speed of `color-rg-replace-all-matches' when awesome-tray is enable.
@@ -1369,30 +1372,31 @@ This function is the opposite of `color-rg-rerun-change-globs'"
          (match-buffer (color-rg-get-match-buffer match-file))
          in-org-link-content-p)
     (save-excursion
-      ;; Try fill variables when in org file.
-      (color-rg-move-to-column match-column)
-      (setq in-org-link-content-p
-            (and (color-rg-is-org-file match-file)
-                 (color-rg-in-org-link-content-p)))
-      ;; Open file in other window.
-      (find-file-other-window match-file)
-      ;; Add to temp list if file's buffer is not exist.
-      (unless match-buffer
-        (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
-      ;; Jump to match point.
-      ;; We use `ignore-errors' to make sure cursor will back to color-rg buffer
-      ;; even target line is not exists in search file (such as delete by user).
-      (ignore-errors
-        (cond ((color-rg-is-org-file match-file)
-               ;; Jump to match position.
-               (color-rg-move-to-point match-line match-column)
-               ;; Expand org block if current file is *.org file.
-               (org-reveal)
-               ;; Jump to link beginning if keyword in content area.
-               (when in-org-link-content-p
-                 (search-backward-regexp "\\[\\[" (line-beginning-position) t)))
-              (t
-               (color-rg-move-to-point match-line match-column))))
+      (let ((inhibit-message t))
+        ;; Try fill variables when in org file.
+        (color-rg-move-to-column match-column)
+        (setq in-org-link-content-p
+              (and (color-rg-is-org-file match-file)
+                   (color-rg-in-org-link-content-p)))
+        ;; Open file in other window.
+        (find-file-other-window match-file)
+        ;; Add to temp list if file's buffer is not exist.
+        (unless match-buffer
+          (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
+        ;; Jump to match point.
+        ;; We use `ignore-errors' to make sure cursor will back to color-rg buffer
+        ;; even target line is not exists in search file (such as delete by user).
+        (ignore-errors
+          (cond ((color-rg-is-org-file match-file)
+                 ;; Jump to match position.
+                 (color-rg-move-to-point match-line match-column)
+                 ;; Expand org block if current file is *.org file.
+                 (org-reveal)
+                 ;; Jump to link beginning if keyword in content area.
+                 (when in-org-link-content-p
+                   (search-backward-regexp "\\[\\[" (line-beginning-position) t)))
+                (t
+                 (color-rg-move-to-point match-line match-column)))))
       ;; Flash match line.
       (color-rg-flash-line))
     ;; Keep cursor in search buffer's window.
