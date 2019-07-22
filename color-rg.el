@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 5.0
-;; Last-Updated: 2019-07-15 21:35:18
+;; Version: 5.1
+;; Last-Updated: 2019-07-22 23:11:44
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/07/22
+;;      * Add option `color-rg-max-column'.
 ;;
 ;; 2019/07/15
 ;;      * Don't print "Mark Set" message when call `color-rg-open-file' function.
@@ -289,6 +292,12 @@ Anyway, you can set this option with nil if you don't like color-rg kill any buf
 
 Default is enable, set this variable to nil if you don't like this feature."
   :type 'boolean
+  :group 'color-rg)
+
+(defcustom color-rg-max-column 300
+  "When searching for JS library files, the long JS library file will cause color-rg navigation to be very slow.
+By default, there are 300 columns of restrictions to avoid long file problems."
+  :type 'integer
   :group 'color-rg)
 
 (defface color-rg-font-lock-header-line-text
@@ -652,6 +661,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
           ;; So we add this option force to make group matches work always.
           ;;
           (list "--heading")
+
+          (list "--max-columns" (number-to-string color-rg-max-column))
 
           (when no-ignore
             (list "--no-ignore"))
