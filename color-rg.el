@@ -7,15 +7,15 @@
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
 ;; Version: 5.1
-;; Last-Updated: 2019-07-22 23:11:44
-;;           By: Andy Stewart
+;; Last-Updated: Thu Aug  8 11:12:36 2019 (-0400)
+;;           By: Mingde (Matthew) Zeng
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
 ;; Compatibility: GNU Emacs 27.0.50
 ;;
 ;; Features that might be required by this library:
 ;;
-;; `cl' `subr-x' `grep'
+;; `cl-lib' `subr-x' `grep'
 ;;
 
 ;;; This file is NOT part of GNU Emacs
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/08/08
+;;      * Use `cl-lib' instead of `cl' to avoid `Package cl is deprecated' message in the minibuffer.
 ;;
 ;; 2019/07/22
 ;;      * Add option `color-rg-max-column'.
@@ -229,7 +232,7 @@
 ;;
 
 ;;; Require
-(require 'cl)
+(require 'cl-lib)
 (require 'subr-x)
 (require 'grep)
 
