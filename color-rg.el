@@ -6,9 +6,9 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 5.1
-;; Last-Updated: Thu Aug  8 11:12:36 2019 (-0400)
-;;           By: Mingde (Matthew) Zeng
+;; Version: 5.2
+;; Last-Updated: 2019-12-23 22:48:08
+;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
 ;; Compatibility: GNU Emacs 27.0.50
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2019/12/23
+;;      * Support search tramp path.
 ;;
 ;; 2019/08/08
 ;;      * Use `cl-lib' instead of `cl' to avoid `Package cl is deprecated' message in the minibuffer.
@@ -685,12 +688,21 @@ CASE-SENSITIVE determinies if search is case-sensitive."
                 (list "--type-not <F>")
               (list "--type <F>")))
 
-          (list "-e <R>" dir))))
+          (list "-e <R>" (color-rg-filter-tramp-path dir)))))
 
     (grep-expand-template
      (mapconcat 'identity (cons "rg" (delete-dups command-line)) " ")
      keyword
      (if (color-rg-is-custom-file-pattern globs) "custom" globs))))
+
+(defun color-rg-filter-tramp-path (x)
+  "Remove sudo from path.  Argument X is path."
+  (if (tramp-tramp-file-p x)
+      (let ((tx (tramp-dissect-file-name x)))
+        (if (string-equal "sudo" (tramp-file-name-method tx))
+            (tramp-file-name-localname tx)
+          x))
+    x))
 
 (defun color-rg-search (keyword directory globs &optional literal no-ignore case-sensitive file-exclude)
   (let* ((command (color-rg-build-command keyword directory globs literal no-ignore case-sensitive file-exclude)))
@@ -1393,7 +1405,9 @@ This function is the opposite of `color-rg-rerun-change-globs'"
               (and (color-rg-is-org-file match-file)
                    (color-rg-in-org-link-content-p)))
         ;; Open file in other window.
-        (find-file-other-window match-file)
+        ;; Note, don't use `find-file-other-window', it will failed if path is tramp path that start with /sudo:root
+        (other-window 1)
+        (find-file match-file)
         ;; Add to temp list if file's buffer is not exist.
         (unless match-buffer
           (add-to-list 'color-rg-temp-visit-buffers (current-buffer)))
