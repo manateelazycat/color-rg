@@ -697,7 +697,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
 (defun color-rg-filter-tramp-path (x)
   "Remove sudo from path.  Argument X is path."
-  (if (tramp-tramp-file-p x)
+  (if (and (boundp 'tramp-tramp-file-p)
+           (tramp-tramp-file-p x))
       (let ((tx (tramp-dissect-file-name x)))
         (if (string-equal "sudo" (tramp-file-name-method tx))
             (tramp-file-name-localname tx)
