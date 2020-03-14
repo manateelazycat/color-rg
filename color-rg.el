@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 5.3
-;; Last-Updated: 2020-03-14 13:51:49
+;; Version: 5.4
+;; Last-Updated: 2020-03-14 14:05:19
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -70,6 +70,7 @@
 ;;
 ;; 2020/03/14
 ;;      * Split window and select if color-buffer is not exist in windows.
+;;      * Add keybinding notify.
 ;;
 ;; 2019/12/23
 ;;      * Support search tramp path.
@@ -583,6 +584,19 @@ This function is called from `compilation-filter-hook'."
                             (propertize (format "%s" (color-rg-search-mode color-rg-cur-search)) 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
                             (propertize " Hits: " 'font-lock-face 'color-rg-font-lock-header-line-text)
                             (propertize (format "%s" color-rg-hit-count) 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize " Keys:" 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize " Navigation " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize "j / k" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize " Replace " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize "r" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize " Edit " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize "e" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize " Filter files: " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize "x / X / u" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize " Filter regex: " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize "f / F" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize " Customize " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize "C" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
                             )))
 
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
@@ -1533,7 +1547,7 @@ Function `move-to-column' can't handle mixed string of Chinese and English corre
   ;; Add change monitor.
   (add-hook 'after-change-functions 'color-rg-after-change-function nil t)
   ;; Message to user.
-  (message "Switch to edit mode"))
+  (message "Switch to edit mode: press C-c C-c to apply change, press C-c C-q cancel edit"))
 
 (defun color-rg-quit ()
   (interactive)
