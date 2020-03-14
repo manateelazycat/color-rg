@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 5.2
-;; Last-Updated: 2019-12-23 22:48:08
+;; Version: 5.3
+;; Last-Updated: 2020-03-14 13:51:49
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2020/03/14
+;;      * Split window and select if color-buffer is not exist in windows.
 ;;
 ;; 2019/12/23
 ;;      * Support search tramp path.
@@ -1397,7 +1400,8 @@ This function is the opposite of `color-rg-rerun-change-globs'"
          (match-line (color-rg-get-match-line))
          (match-column (color-rg-get-match-column))
          (match-buffer (color-rg-get-match-buffer match-file))
-         in-org-link-content-p)
+         in-org-link-content-p
+         color-buffer-window)
     (save-excursion
       (let ((inhibit-message t))
         ;; Try fill variables when in org file.
@@ -1429,7 +1433,14 @@ This function is the opposite of `color-rg-rerun-change-globs'"
       ;; Flash match line.
       (color-rg-flash-line))
     ;; Keep cursor in search buffer's window.
-    (select-window (get-buffer-window color-rg-buffer))
+    (setq color-buffer-window (get-buffer-window color-rg-buffer))
+    (if color-buffer-window
+        (select-window color-buffer-window)
+      ;; Split window and select if color-buffer is not exist in windows.
+      (delete-other-windows)
+      (split-window)
+      (other-window 1)
+      (switch-to-buffer color-rg-buffer))
     ;; Ajust column position.
     (color-rg-move-to-column match-column)
     ))
