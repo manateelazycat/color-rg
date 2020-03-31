@@ -1125,9 +1125,12 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
               default-directory))
          (search-globs
           (or globs
-              "everything"))
-         (quoted-search-directory (format "\"%s\"" search-directory)))
-    (color-rg-search search-keyboard quoted-search-directory search-globs)))
+              "everything")))
+    (color-rg-search search-keyboard
+                     (if (string-equal system-type "windows-nt")
+                         (format "\"%s\"" search-directory)
+                       search-directory)
+                     search-globs)))
 
 (defun color-rg-search-symbol ()
   (interactive)
