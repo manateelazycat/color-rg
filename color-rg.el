@@ -1416,7 +1416,7 @@ This function is the opposite of `color-rg-rerun-change-globs'"
           (color-rg-open-file))
       (message "Reach to first file."))))
 
-(defun color-rg-open-file ()
+(defun color-rg-open-file (&optional stay)
   (interactive)
   (let* ((match-file (color-rg-get-match-file))
          (match-line (color-rg-get-match-line))
@@ -1454,18 +1454,23 @@ This function is the opposite of `color-rg-rerun-change-globs'"
                  (color-rg-move-to-point match-line match-column)))))
       ;; Flash match line.
       (color-rg-flash-line))
-    ;; Keep cursor in search buffer's window.
-    (setq color-buffer-window (get-buffer-window color-rg-buffer))
-    (if color-buffer-window
-        (select-window color-buffer-window)
-      ;; Split window and select if color-buffer is not exist in windows.
-      (delete-other-windows)
-      (split-window)
-      (other-window 1)
-      (switch-to-buffer color-rg-buffer))
+    (unless stay
+      ;; Keep cursor in search buffer's window.
+      (setq color-buffer-window (get-buffer-window color-rg-buffer))
+      (if color-buffer-window
+          (select-window color-buffer-window)
+        ;; Split window and select if color-buffer is not exist in windows.
+        (delete-other-windows)
+        (split-window)
+        (other-window 1)
+        (switch-to-buffer color-rg-buffer)))
     ;; Ajust column position.
     (color-rg-move-to-column match-column)
     ))
+
+(defun color-rg-open-file-and-stay ()
+  (interactive)
+  (color-rg-open-file t))
 
 (defun color-rg-flash-line ()
   (let ((pulse-iterations 1)
