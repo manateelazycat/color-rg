@@ -426,8 +426,9 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "k") 'color-rg-jump-prev-keyword)
     (define-key map (kbd "h") 'color-rg-jump-next-file)
     (define-key map (kbd "l") 'color-rg-jump-prev-file)
-    (define-key map (kbd "RET") 'color-rg-open-file)
-    (define-key map (kbd "C-m") 'color-rg-open-file)
+    (define-key map (kbd "SPC") 'color-rg-open-file)
+    (define-key map (kbd "RET") 'color-rg-open-file-and-stay)
+    (define-key map (kbd "C-m") 'color-rg-open-file-and-stay)
 
     (define-key map (kbd "r") 'color-rg-replace-all-matches)
     (define-key map (kbd "f") 'color-rg-filter-match-results)
@@ -677,7 +678,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           (list "--column --color=always -H")
 
-          ;; NOTE:
+          ;; NOTE:                      ;
           ;;
           ;; ripgrep is default use heading option (group matches by each file) in all OS's terminal.
           ;; But not greoup matches on Windows/Emacs.
