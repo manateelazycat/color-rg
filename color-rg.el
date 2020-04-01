@@ -707,10 +707,14 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           (list "-e <R>" (color-rg-filter-tramp-path dir)))))
 
-    (grep-expand-template
-     (mapconcat 'identity (cons "rg" (delete-dups command-line)) " ")
-     keyword
-     (if (color-rg-is-custom-file-pattern globs) "custom" globs))))
+    (setq command-line
+          (grep-expand-template
+           (mapconcat 'identity (cons "rg" (delete-dups command-line)) " ")
+           keyword
+           (if (color-rg-is-custom-file-pattern globs) "custom" globs)))
+    (when (memq system-type '(cygwin windows-nt ms-dos))
+      (setq command-line (encode-coding-string command-line 'gbk)))
+    command-line))
 
 (defun color-rg-filter-tramp-path (x)
   "Remove sudo from path.  Argument X is path."
