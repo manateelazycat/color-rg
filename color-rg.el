@@ -714,7 +714,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
            keyword
            (if (color-rg-is-custom-file-pattern globs) "custom" globs)))
     (when (memq system-type '(cygwin windows-nt ms-dos))
-      (setq command-line (encode-coding-string command-line 'gbk)))
+      (setq command-line (encode-coding-string command-line locale-coding-system)))
     command-line))
 
 (defun color-rg-filter-tramp-path (x)
