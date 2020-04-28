@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 5.4
-;; Last-Updated: 2020-03-14 14:05:19
+;; Version: 5.5
+;; Last-Updated: 2020-04-28 20:43:55
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2020/04/28
+;;      * Add new option `color-rg-mac-load-path-from-shell'.
 ;;
 ;; 2020/03/14
 ;;      * Split window and select if color-buffer is not exist in windows.
@@ -245,7 +248,12 @@
 
 ;;; Code:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OS Config ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(when (featurep 'cocoa)
+(defvar color-rg-mac-load-path-from-shell t
+  "Some framework like Doom doens't use `exec-path-from-shell'.
+You you make this option to nil if you don't want use `exec-path-from-shell'.")
+
+(when (and color-rg-mac-load-path-from-shell
+           (featurep 'cocoa))
   ;; Initialize environment from user's shell to make eshell know every PATH by other shell.
   (require 'exec-path-from-shell)
   (exec-path-from-shell-initialize))
