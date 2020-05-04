@@ -6,8 +6,8 @@
 ;; Maintainer: Andy Stewart <lazycat.manatee@gmail.com>
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
-;; Version: 5.5
-;; Last-Updated: 2020-04-28 20:43:55
+;; Version: 5.6
+;; Last-Updated: 2020-05-04 17:52:55
 ;;           By: Andy Stewart
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
@@ -67,6 +67,9 @@
 ;;
 
 ;;; Change log:
+;;
+;; 2020/05/04
+;;      * Add new command `color-rg-insert-current-line'.
 ;;
 ;; 2020/04/28
 ;;      * Add new option `color-rg-mac-load-path-from-shell'.
@@ -434,6 +437,7 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "k") 'color-rg-jump-prev-keyword)
     (define-key map (kbd "h") 'color-rg-jump-next-file)
     (define-key map (kbd "l") 'color-rg-jump-prev-file)
+    (define-key map (kbd "g") 'color-rg-insert-current-line)
     (define-key map (kbd "SPC") 'color-rg-open-file)
     (define-key map (kbd "RET") 'color-rg-open-file-and-stay)
     (define-key map (kbd "C-m") 'color-rg-open-file-and-stay)
@@ -1424,6 +1428,19 @@ This function is the opposite of `color-rg-rerun-change-globs'"
           (forward-line)
           (color-rg-open-file))
       (message "Reach to first file."))))
+
+(defun color-rg-insert-current-line ()
+  (interactive)
+  (let ((current-line (save-excursion
+                        (beginning-of-line)
+                        (search-forward-regexp color-rg-regexp-position nil t)
+                        (setq start (point))
+                        (end-of-line)
+                        (setq end (point))
+                        (buffer-substring start end)
+                        )))
+    (color-rg-quit)
+    (insert current-line)))
 
 (defun color-rg-open-file (&optional stay)
   (interactive)
