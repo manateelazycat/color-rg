@@ -759,6 +759,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
     ;; Run search command.
     (with-current-buffer color-rg-buffer
+      (setq-local compilation-buffer-name-function #'compilation--default-buffer-name)
       ;; Start command.
       (compilation-start command 'color-rg-mode)
 
@@ -803,6 +804,7 @@ user more freedom to use rg with special arguments."
 
     ;; Run search command.
     (with-current-buffer color-rg-buffer
+      (setq-local compilation-buffer-name-function #'compilation--default-buffer-name)
       ;; Start command.
       (compilation-start command 'color-rg-mode)
 
