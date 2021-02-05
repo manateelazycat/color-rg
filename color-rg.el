@@ -318,7 +318,7 @@ Default is enable, set this variable to nil if you don't like this feature."
   :type 'boolean
   :group 'color-rg)
 
-(defcustom color-rg-max-column 300
+(defcustom color-rg-max-column 3000
   "When searching for JS library files, the long JS library file will cause color-rg navigation to be very slow.
 By default, there are 300 columns of restrictions to avoid long file problems."
   :type 'integer
