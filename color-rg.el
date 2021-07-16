@@ -331,6 +331,13 @@ Default is disabled, set this variable to true if you found it's useful"
   :type 'boolean
   :group 'color-rg)
 
+(defcustom color-rg-project-root nil
+  "Default project root directory.
+
+It can overrides the project root directory automatically detected."
+  :group 'color-rg
+  :type 'string)
+
 (defface color-rg-font-lock-header-line-text
   '((t (:foreground "Green3" :bold t)))
   "Face for header line text."
@@ -1183,10 +1190,13 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   (color-rg-search-input (color-rg-pointer-string) (expand-file-name (buffer-file-name))))
 
 (defun color-rg-project-root-dir ()
-  (let ((project (project-current)))
-    (if project
-        (expand-file-name (cdr project))
-      default-directory)))
+  (if (and color-rg-project-root
+           (not (string-blank-p color-rg-project-root)))
+      (expand-file-name color-rg-project-root)
+    (let ((project (project-current)))
+      (if project
+          (expand-file-name (cdr project))
+        default-directory))))
 
 (defalias 'color-rg-search-input-in-project 'color-rg-search-project)
 
