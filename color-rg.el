@@ -331,6 +331,13 @@ Default is disabled, set this variable to true if you found it's useful"
   :type 'boolean
   :group 'color-rg)
 
+(defcustom color-rg-search-ignore-file t
+  "Search ignore file.
+
+Default is enable, set this variable to false if you don't search ignore file."
+  :type 'boolean
+  :group 'color-rg)
+
 (defface color-rg-font-lock-header-line-text
   '((t (:foreground "Green3" :bold t)))
   "Face for header line text."
@@ -710,7 +717,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           (list "--max-columns" (number-to-string color-rg-max-column))
 
-          (when no-ignore
+          (when (or color-rg-search-ignore-file no-ignore)
             (list "--no-ignore"))
 
           (when color-rg-search-compressed-file
