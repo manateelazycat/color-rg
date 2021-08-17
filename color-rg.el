@@ -454,10 +454,13 @@ used to restore window configuration after apply changed.")
     (define-key map (kbd "k") 'color-rg-jump-prev-keyword)
     (define-key map (kbd "h") 'color-rg-jump-next-file)
     (define-key map (kbd "l") 'color-rg-jump-prev-file)
-    (define-key map (kbd "g") 'color-rg-insert-current-line)
+    (define-key map (kbd "i") 'color-rg-insert-current-line)
+
     (define-key map (kbd "SPC") 'color-rg-open-file)
     (define-key map (kbd "RET") 'color-rg-open-file-and-stay)
     (define-key map (kbd "C-m") 'color-rg-open-file-and-stay)
+
+    (define-key map (kbd "e") 'color-rg-switch-to-edit-mode)
 
     (define-key map (kbd "r") 'color-rg-replace-all-matches)
     (define-key map (kbd "f") 'color-rg-filter-match-results)
@@ -469,16 +472,18 @@ used to restore window configuration after apply changed.")
 
     (define-key map (kbd "D") 'color-rg-remove-line-from-results)
 
-    (define-key map (kbd "i") 'color-rg-rerun-toggle-ignore)
-    (define-key map (kbd "t") 'color-rg-rerun-literal)
-    (define-key map (kbd "c") 'color-rg-rerun-toggle-case)
-    (define-key map (kbd "s") 'color-rg-rerun-regexp)
-    (define-key map (kbd "d") 'color-rg-rerun-change-dir)
-    (define-key map (kbd "z") 'color-rg-rerun-change-globs)
-    (define-key map (kbd "Z") 'color-rg-rerun-change-exclude-files)
-    (define-key map (kbd "C") 'color-rg-customized-search)
+    (define-key map (kbd "I") 'color-rg-rerun-toggle-ignore)
+    (define-key map (kbd "C") 'color-rg-rerun-toggle-case)
+    (define-key map (kbd "L") 'color-rg-rerun-literal)
+    (define-key map (kbd "R") 'color-rg-rerun-regexp)
+    (define-key map (kbd "G") 'color-rg-rerun-change-globs)
+    (define-key map (kbd "E") 'color-rg-rerun-change-exclude-files)
 
-    (define-key map (kbd "e") 'color-rg-switch-to-edit-mode)
+    (define-key map (kbd "o") 'color-rg-rerun-parent-dir)
+    (define-key map (kbd "O") 'color-rg-rerun-change-dir)
+
+    (define-key map (kbd "S") 'color-rg-customized-search)
+
     (define-key map (kbd "q") 'color-rg-quit)
     map)
   "Keymap used by `color-rg-mode'.")
@@ -1338,14 +1343,20 @@ This function is the opposite of `color-rg-rerun-change-globs'"
   (setf (color-rg-search-globs color-rg-cur-search) (color-rg-read-file-type "Repeat search exclude files (default: [ %s ]): "))
   (color-rg-rerun))
 
+(defun color-rg-rerun-parent-dir ()
+  "Rerun last command on parent dir."
+  (interactive)
+  (setf (color-rg-search-dir color-rg-cur-search)
+        (file-name-directory (directory-file-name (color-rg-search-dir color-rg-cur-search))))
+  (color-rg-rerun))
+
 (defun color-rg-rerun-change-dir ()
-  "rerun last command but prompt for new dir."
+  "Rerun last command but prompt for new dir."
   (interactive)
   (setf (color-rg-search-dir color-rg-cur-search)
         (read-file-name "In file: "
                         (file-name-directory (color-rg-search-dir color-rg-cur-search)) nil))
   (color-rg-rerun))
-
 
 (defun color-rg-rerun-literal (&optional nointeractive)
   "Re-search as literal."
