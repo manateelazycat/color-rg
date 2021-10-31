@@ -334,7 +334,14 @@ Default is disabled, set this variable to true if you found it's useful"
 (defcustom color-rg-search-ignore-file t
   "Search ignore file.
 
-Default is enable, set this variable to false if you don't search ignore file."
+Default is enable, set this variable to nil if you don't search ignore file."
+  :type 'boolean
+  :group 'color-rg)
+
+(defcustom color-rg-search-ignore-node-files t
+  "Ignore node_modules and dist files when read the emacs source code.
+
+Default is enable, set this variable to nil if you don't like it."
   :type 'boolean
   :group 'color-rg)
 
@@ -724,6 +731,9 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           (when (or color-rg-search-ignore-file no-ignore)
             (list "--no-ignore"))
+
+          (when color-rg-search-ignore-node-files
+            (list "-g '!node_modules' -g '!dist'"))
 
           (when color-rg-search-compressed-file
             (list "-z"))
