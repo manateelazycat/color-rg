@@ -331,10 +331,10 @@ Default is disabled, set this variable to true if you found it's useful"
   :type 'boolean
   :group 'color-rg)
 
-(defcustom color-rg-search-ignore-file t
-  "Search ignore file.
+(defcustom color-rg-search-no-ignore-file t
+  "Search files match gitignore rule.
 
-Default is enable, set this variable to nil if you don't search ignore file."
+Default is enable, set this variable to nil if you want search files match gitignore rule."
   :type 'boolean
   :group 'color-rg)
 
@@ -729,7 +729,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           (list "--max-columns" (number-to-string color-rg-max-column))
 
-          (when (or color-rg-search-ignore-file no-ignore)
+          (when (or color-rg-search-no-ignore-file no-ignore)
             (list "--no-ignore"))
 
           (when color-rg-search-ignore-node-files
