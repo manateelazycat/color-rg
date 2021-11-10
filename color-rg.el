@@ -332,17 +332,19 @@ Default is disabled, set this variable to true if you found it's useful"
   :group 'color-rg)
 
 (defcustom color-rg-search-no-ignore-file t
-  "Search files match gitignore rule.
+  "Don’t respect ignore files.
 
 Default is enable, set this variable to nil if you want search files match gitignore rule."
   :type 'boolean
   :group 'color-rg)
 
-(defcustom color-rg-search-ignore-node-files t
-  "Ignore node_modules and dist files when read the emacs source code.
+(defcustom color-rg-search-ignore-rules "-g '!node_modules' -g '!dist'"
+  "When `color-rg-search-no-ignore-file' is non-nil, color-rg will search any file.
+Include file match gitignore rule.
 
-Default is enable, set this variable to nil if you don't like it."
-  :type 'boolean
+Default rule is search any file but except `node_modules' and `dist' directory,
+you can customize ignore rules with your like."
+  :type 'string
   :group 'color-rg)
 
 (defface color-rg-font-lock-header-line-text
@@ -732,8 +734,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
           (when (or color-rg-search-no-ignore-file no-ignore)
             (list "--no-ignore"))
 
-          (when color-rg-search-ignore-node-files
-            (list "-g '!node_modules' -g '!dist'"))
+          (list color-rg-search-ignore-rules)
 
           (when color-rg-search-compressed-file
             (list "-z"))
