@@ -735,6 +735,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
           (when color-rg-search-ignore-node-files
             (list "-g '!node_modules' -g '!dist'"))
 
+          (list "-g '!TAGS'") ;; ignore TAGS file
+
           (when color-rg-search-compressed-file
             (list "-z"))
 
