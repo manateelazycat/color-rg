@@ -302,7 +302,7 @@ Setting this to nil or 0 will turn off the indicator."
 (defcustom color-rg-kill-temp-buffer-p t
   "Default this option is true, it will kill temp buffer when quit color-rg buffer.
 
-A buffer will killled if it is open by color-rg and not edit by color-rg.
+A buffer will killed if it is open by color-rg and not edit by color-rg.
 
 A buffer won't kill is it open before color-rg command start.
 A buffer won't kill if buffer content is change by color-rg.
@@ -320,7 +320,7 @@ Default is enable, set this variable to nil if you don't like this feature."
 
 (defcustom color-rg-max-column 3000
   "When searching for JS library files, the long JS library file will cause color-rg navigation to be very slow.
-By default, there are 300 columns of restrictions to avoid long file problems."
+By default, there are 3000 columns of restrictions to avoid long file problems."
   :type 'integer
   :group 'color-rg)
 
