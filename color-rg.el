@@ -866,9 +866,11 @@ user more freedom to use rg with special arguments."
 
 (defun color-rg-current-parse-state ()
   "Return parse state of point from beginning of defun."
-  (let ((point (point)))
-    (beginning-of-defun)
-    (parse-partial-sexp (point) point)))
+  (ignore-errors
+    (save-excursion
+      (let ((point (point)))
+        (beginning-of-defun)
+        (parse-partial-sexp (point) point)))))
 
 (defun color-rg-in-string-p (&optional state)
   (or (nth 3 (or state (color-rg-current-parse-state)))
