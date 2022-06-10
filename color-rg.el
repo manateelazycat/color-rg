@@ -1303,7 +1303,9 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   (interactive)
   ;; Buffer locals will be reset in recompile so we need save them
   ;; here.
-  (let ((cur-search color-rg-cur-search))
+  (let ((cur-search color-rg-cur-search)
+        ;; Fix compatibility issues with doom-emacs, because it changed the value of compilation-buffer-name-function.
+        (compilation-buffer-name-function #'compilation--default-buffer-name))
     (recompile)
     (setq color-rg-cur-search cur-search)))
 
