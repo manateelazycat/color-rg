@@ -1371,7 +1371,7 @@ This function is the opposite of `color-rg-rerun-change-globs'"
   "Rerun last command but prompt for new dir."
   (interactive)
   (setf (color-rg-search-dir color-rg-cur-search)
-        (read-file-name "In file: "
+        (read-file-name "In directory: "
                         (file-name-directory (color-rg-search-dir color-rg-cur-search)) nil))
   (color-rg-rerun))
 
