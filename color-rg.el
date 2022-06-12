@@ -1279,13 +1279,15 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   (interactive)
   (save-excursion
     (with-current-buffer color-rg-buffer
-      (let ((inhibit-read-only t))
+      (let ((inhibit-read-only t)
+            (old-compilation-arguments compilation-arguments))
         (color-rg-mode) ; switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
         (read-only-mode -1)
         (erase-buffer)
         (insert (with-current-buffer color-rg-temp-buffer
                   (buffer-substring (point-min) (point-max))))
         (read-only-mode 1)
+        (setq-local compilation-arguments old-compilation-arguments)
         )
       ;; Update hit number in header line.
       (color-rg-update-header-line-hits))))
