@@ -52,14 +52,16 @@ Bind your favorite key to functions:
 | X          | Filter results not match file extension                                |
 | u          | Don't filter file extension                                            |
 | D          | Delete current line from results                                       |
-| i          | Toggle to include or exclude the ignore files                          |
-| t          | Re-search pattern as literal                                           |
-| c          | Toggle to smart case or case sensitive                                 |
-| s          | Re-search with new keyword and default argument                        |
-| d          | Re-search with new directory                                           |
-| z          | Re-search with new files                                               |
-| Z          | Rerun last search but prompt for new files which will NOT be searched. |
-| C          | Rerun rg with customized arguments.                                    |
+| L          | Re-search pattern as literal                                           |
+| R          | Re-search pattern as regexp                                           |
+| I          | Toggle to `include`/`exclude` the ignore files then rerun last search           |
+| C          | Toggle to `smart case`/`case sensitive` then rerun last search                    |
+| N          | Toggle to respect `color-rg-search-ignore-rules` then rerun last search                    |
+| O          | Rerun last search in new directory                                           |
+| o          | Rerun last search in (up one level) parent directory                                           |
+| G          | Rerun last search only include specified file type                        |
+| E          | Rerun last search exclude specified file type                        |
+| S          | Rerun rg with customized arguments.                                    |
 | e          | Enable edit mode                                                       |
 | q          | Quit                                                                   |
 
