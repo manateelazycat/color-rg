@@ -433,6 +433,10 @@ used to restore buffer point after finish search.")
   "Save window configuration before apply changed,
 used to restore window configuration after apply changed.")
 
+(defvar color-rg-window-configuration-before-open nil
+  "Save window configuration before open file,
+used to restore window configuration after file content changed.")
+
 (defvar color-rg-hit-count 0
   "Search keyword hit counter.")
 
@@ -1504,6 +1508,7 @@ This function is the opposite of `color-rg-rerun-change-globs'"
 
 (defun color-rg-open-file (&optional stay)
   (interactive)
+  (setq color-rg-window-configuration-before-open (current-window-configuration))
   (let* ((match-file (color-rg-get-match-file))
          (match-line (color-rg-get-match-line))
          (match-column (color-rg-get-match-column))
@@ -1553,6 +1558,11 @@ This function is the opposite of `color-rg-rerun-change-globs'"
     ;; Ajust column position.
     (color-rg-move-to-column match-column)
     ))
+
+(defun color-rg-back ()
+  (interactive)
+  (when color-rg-window-configuration-before-open
+    (set-window-configuration color-rg-window-configuration-before-open)))
 
 (defun color-rg-open-file-and-stay ()
   (interactive)
