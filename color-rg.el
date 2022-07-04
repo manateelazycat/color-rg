@@ -1213,7 +1213,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 (defun color-rg-project-root-dir ()
   (let ((project (project-current)))
     (if project
-        (if (version< "27.0" emacs-version)
+        (if (version< emacs-version "27.0")
             (expand-file-name (cdr project))
           (expand-file-name (car (last project))))
       default-directory)))
