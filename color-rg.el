@@ -1213,10 +1213,14 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 (defun color-rg-project-root-dir ()
   (let ((project (project-current)))
     (if project
-        (if (version< emacs-version "27.0")
-            (expand-file-name (cdr project))
-          (expand-file-name (car (last project))))
-      default-directory)))
+        (cond
+         ;; 27 <= <= 28
+         ((and
+           (version< "27" emacs-version)
+           (version< emacs-version "29")) (expand-file-name (cdr project)))
+         ;; >= 29
+         ((version<= "29" emacs-version) (expand-file-name (car (last project))))
+         (t default-directory)))))
 
 (defalias 'color-rg-search-input-in-project 'color-rg-search-project)
 
