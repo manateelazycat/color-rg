@@ -1217,9 +1217,11 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
          ;; 27 <= <= 28
          ((and
            (version< "27" emacs-version)
-           (version< emacs-version "29")) (expand-file-name (cdr project)))
+           (version< emacs-version "29"))
+          (expand-file-name (cdr project)))
          ;; >= 29
-         ((version<= "29" emacs-version) (expand-file-name (car (last project))))
+         ((version<= "29" emacs-version)
+          (expand-file-name (car (last project))))
          (t default-directory)))))
 
 (defalias 'color-rg-search-input-in-project 'color-rg-search-project)
