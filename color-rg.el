@@ -1214,6 +1214,8 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   (let ((project (project-current)))
     (if project
         (progn
+          (setq project (cdr project))
+
           (when (listp project)
             (setq project (nth (- (length project) 1) project)))
 
