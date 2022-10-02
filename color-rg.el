@@ -1733,7 +1733,8 @@ Function `move-to-column' can't handle mixed string of Chinese and English corre
     ;; Save window configuration before do apply.
     (setq color-rg-window-configuration-before-apply (current-window-configuration))
     ;; Apply changed.
-    (let ((inhibit-message t)) ; don't flush to echo area when apply changed, optimise for color-rg
+    (let ((inhibit-message t) ;don't flush to echo area when apply changed, optimise for color-rg
+          (apply-files '()))
       (save-excursion
         (dolist (line color-rg-changed-lines)
           (let (match-file match-line changed-line-content)
@@ -1745,6 +1746,7 @@ Function `move-to-column' can't handle mixed string of Chinese and English corre
               (setq match-line (color-rg-get-match-line)))
             ;; Open file in other window.
             (find-file match-file)
+            (add-to-list 'apply-files match-file)
             ;; Remove from temp list if file's buffer is exist.
             (setq color-rg-temp-visit-buffers (remove (current-buffer) color-rg-temp-visit-buffers))
             ;; Kill target line.
@@ -1755,8 +1757,11 @@ Function `move-to-column' can't handle mixed string of Chinese and English corre
                 ;; Kill empty line if line mark as deleted.
                 (kill-line)
               ;; Otherwise insert new line into file.
-              (insert changed-line-content))
-            ))))
+              (insert changed-line-content))))
+        ;; Save files after change.
+        (dolist (apply-file apply-files)
+          (find-file apply-file)
+          (basic-save-buffer))))
     ;; Restore window configuration before apply changed.
     (when color-rg-window-configuration-before-apply
       (set-window-configuration color-rg-window-configuration-before-apply)
