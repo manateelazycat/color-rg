@@ -1245,6 +1245,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   (color-rg-search-input (color-rg-read-input) (concat (color-rg-project-root-dir) "app") (color-rg-read-file-type "Filter file by type (default: [ %s ]): ")))
 
 (defun color-rg-replace-all-matches ()
+  "Replace all matched results."
   (interactive)
   (save-excursion
     (let (changed-line-number)
@@ -1259,8 +1260,8 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
             (setq changed-line-number (length color-rg-changed-lines))
             (color-rg-apply-changed)
             (color-rg-switch-to-view-mode)
-            (setf (color-rg-search-keyword color-rg-cur-search) replace-text)
-            )))
+            (when (> changed-line-number 0)
+              (setf (color-rg-search-keyword color-rg-cur-search) replace-text)))))
       (message "Replace %s lines" changed-line-number))))
 
 (defun color-rg-filter-match-results ()
