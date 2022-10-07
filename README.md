@@ -127,11 +127,7 @@ rg --type-add 'custom:*.el'
 rg --type-add "custom:*.el"
 ```
 
-
-### Contributors
-
-Thanks all [contributors](https://github.com/manateelazycat/color-rg/graphs/contributors) help this project.
-
-Below is list of outstanding contributors:
-
-[Xie Peng](https://github.com/pengpengxp) - Main contributor, wrote many patches to improve regexp/literal search.
+## Contributor
+<a href = "https://github.com/manateelazycat/color-rg/graphs/contributors">
+  <img src = "https://contrib.rocks/image?repo=manateelazycat/color-rg"/>
+</a>
