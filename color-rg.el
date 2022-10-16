@@ -1438,7 +1438,10 @@ This function is the opposite of `color-rg-rerun-change-globs'"
         (progn
           (goto-char next-position)
           (color-rg-open-file))
-      (message "Reach to last line."))))
+      (progn
+        (message "Reach to the last line.")
+        (goto-char (point-min))
+        (call-interactively #'color-rg-jump-next-keyword)))))
 
 (defun color-rg-jump-prev-keyword ()
   (interactive)
