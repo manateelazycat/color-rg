@@ -332,9 +332,14 @@ Default is disabled, set this variable to true if you found it's useful"
   :group 'color-rg)
 
 (defcustom color-rg-search-no-ignore-file t
-  "Don’t respect ignore files.
+  "Don't respect ignore files.
 
 Default is enable, set this variable to nil if you want search files match gitignore rule."
+  :type 'boolean
+  :group 'color-rg)
+
+(defcustom color-rg-recenter-match-line nil
+  "Non-nil means to recenter when jump between matched lines."
   :type 'boolean
   :group 'color-rg)
 
@@ -1514,6 +1519,8 @@ This function is the opposite of `color-rg-rerun-change-globs'"
     (insert current-line)))
 
 (defun color-rg-open-file (&optional stay)
+  "Open file in other window.
+If STAY is non-nil, move cursor to the opened file."
   (interactive)
   (setq color-rg-window-configuration-before-open (current-window-configuration))
   (let* ((match-file (color-rg-get-match-file))
@@ -1530,7 +1537,7 @@ This function is the opposite of `color-rg-rerun-change-globs'"
               (and (color-rg-is-org-file match-file)
                    (color-rg-in-org-link-content-p)))
         ;; Open file in other window.
-        ;; Note, don't use `find-file-other-window', it will failed if path is tramp path that start with /sudo:root
+        ;; NOTE: don't use `find-file-other-window', it will fail if path is a tramp path that starts with /sudo:root
         (other-window 1)
         (find-file match-file)
         ;; Add to temp list if file's buffer is not exist.
@@ -1551,7 +1558,9 @@ This function is the opposite of `color-rg-rerun-change-globs'"
                 (t
                  (color-rg-move-to-point match-line match-column)))))
       ;; Flash match line.
-      (color-rg-flash-line))
+      (color-rg-flash-line)
+      (when color-rg-recenter-match-line
+        (recenter)))
     (unless stay
       ;; Keep cursor in search buffer's window.
       (setq color-buffer-window (get-buffer-window color-rg-buffer))
