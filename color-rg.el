@@ -762,7 +762,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
                 (list "--type-not <F>")
               (list "--type <F>")))
 
-          (list "-e <R>" (color-rg-filter-tramp-path dir)))))
+          (list "-e <R>" (format "\"%s\"" (color-rg-filter-tramp-path dir))))))
 
     (setq command-line
           (grep-expand-template
@@ -773,15 +773,15 @@ CASE-SENSITIVE determinies if search is case-sensitive."
       (setq command-line (encode-coding-string command-line locale-coding-system)))
     command-line))
 
-(defun color-rg-filter-tramp-path (x)
-  "Remove sudo from path.  Argument X is path."
+(defun color-rg-filter-tramp-path (path)
+  "Remove sudo from PATH."
   (if (and (boundp 'tramp-tramp-file-p)
-           (tramp-tramp-file-p x))
-      (let ((tx (tramp-dissect-file-name x)))
-        (if (string-equal "sudo" (tramp-file-name-method tx))
-            (tramp-file-name-localname tx)
-          x))
-    x))
+           (tramp-tramp-file-p path))
+      (let ((tramp-path (tramp-dissect-file-name path)))
+        (if (string-equal "sudo" (tramp-file-name-method tramp-path))
+            (tramp-file-name-localname tramp-path)
+          path))
+    path))
 
 (defun color-rg-search (keyword directory globs &optional literal no-ignore no-node case-sensitive file-exclude)
   (let* ((command (color-rg-build-command keyword directory globs literal no-ignore no-node case-sensitive file-exclude)))
