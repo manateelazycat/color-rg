@@ -256,7 +256,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OS Config ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar color-rg-mac-load-path-from-shell t
   "Some framework like Doom doens't use `exec-path-from-shell'.
-You you make this option to nil if you don't want use `exec-path-from-shell'.")
+Make this option to nil if you don't want use `exec-path-from-shell'.")
 
 (when (and color-rg-mac-load-path-from-shell
            (featurep 'cocoa))
@@ -266,7 +266,7 @@ You you make this option to nil if you don't want use `exec-path-from-shell'.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Group ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defgroup color-rg nil
-  "Search and refacotry code base on ripgrep."
+  "Search and refactor code based on ripgrep."
   :group 'color-rg)
 
 (defcustom color-rg-buffer "*color-rg*"
@@ -886,10 +886,10 @@ user more freedom to use rg with special arguments."
   (or (nth 3 (or state (color-rg-current-parse-state)))
       (and
        (eq (get-text-property (point) 'face) 'font-lock-string-face)
-       (eq (get-text-property (- (point) 1) 'face) 'font-lock-string-face))
+       (eq (get-text-property (1- (point)) 'face) 'font-lock-string-face))
       (and
        (eq (get-text-property (point) 'face) 'font-lock-doc-face)
-       (eq (get-text-property (- (point) 1) 'face) 'font-lock-doc-face))
+       (eq (get-text-property (1- (point)) 'face) 'font-lock-doc-face))
       ))
 
 (defun color-rg-string-start+end-points (&optional state)
@@ -1078,11 +1078,11 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
           (if match-regexp
               (unless (string-match filter-regexp line-content)
                 (color-rg-remove-line-from-results)
-                (setq remove-counter (+ 1 remove-counter))
+                (setq remove-counter (1+ remove-counter))
                 )
             (when (string-match filter-regexp line-content)
               (color-rg-remove-line-from-results)
-              (setq remove-counter (+ 1 remove-counter))
+              (setq remove-counter (1+ remove-counter))
               )))
         (if match-regexp
             (message (format "Remove %s lines not match regexp '%s'." remove-counter filter-regexp))
@@ -1156,7 +1156,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
                    (point-max))))
           (dolist (property plist)
             (when (string-equal (format "%s" property) "color-rg-font-lock-match")
-              (setq hit-count (+ hit-count 1))))
+              (setq hit-count (1+ hit-count))))
           (goto-char next-change)))
       hit-count)))
 
@@ -1215,15 +1215,13 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   (color-rg-search-input (color-rg-pointer-string) (expand-file-name (buffer-file-name))))
 
 (defun color-rg-project-root-dir ()
+  "Return root directory of the current project."
   (let ((project (project-current)))
     (if project
-        (progn
-          (setq project (cdr project))
-
-          (when (listp project)
-            (setq project (nth (- (length project) 1) project)))
-
-          (expand-file-name project))
+        (expand-file-name
+         (cond
+          ((fboundp 'project-root) (project-root project))
+          ((fboundp 'project-roots) (car (project-roots project)))))
       default-directory)))
 
 (defalias 'color-rg-search-input-in-project 'color-rg-search-project)
