@@ -254,9 +254,11 @@
 
 ;;; Code:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OS Config ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar color-rg-mac-load-path-from-shell t
-  "Some framework like Doom doens't use `exec-path-from-shell'.
-Make this option to nil if you don't want use `exec-path-from-shell'.")
+(defcustom color-rg-mac-load-path-from-shell t
+  "Some framework like Doom doesn't use `exec-path-from-shell'.
+Set this option to nil if you don't want to use `exec-path-from-shell'."
+  :type 'boolean
+  :group 'color-rg)
 
 (when (and color-rg-mac-load-path-from-shell
            (featurep 'cocoa))
