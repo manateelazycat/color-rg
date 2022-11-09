@@ -652,9 +652,9 @@ This function is called from `compilation-filter-hook'."
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
                                (:constructor color-rg-search-new (pattern dir))
                                (:copier nil))
-  keyword           ; search keyword
-  dir               ; base directory
-  globs             ; filename only match these globs will be searched
+  keyword             ; search keyword
+  dir                 ; base directory
+  globs               ; filename only match these globs will be searched
   file-exclude ; toggle exclude files, t means filename NOT match the globs will be searched
   literal      ; literal patterh (t or nil)
   case-sensitive                        ; case-sensitive (t or nil)
@@ -1195,9 +1195,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
           (or globs
               "everything")))
     (color-rg-search search-keyboard
-                     (if (string-equal system-type "windows-nt")
-                         (format "\"%s\"" search-directory)
-                       search-directory)
+                     search-directory
                      search-globs)))
 
 (defun color-rg-search-symbol ()
@@ -1395,8 +1393,11 @@ This function is the opposite of `color-rg-rerun-change-globs'"
   "Rerun last command but prompt for new dir."
   (interactive)
   (setf (color-rg-search-dir color-rg-cur-search)
-        (read-file-name "In directory: "
-                        (file-name-directory (color-rg-search-dir color-rg-cur-search)) nil))
+        (expand-file-name
+         (read-file-name
+          "In directory: "
+          (file-name-directory (color-rg-search-dir color-rg-cur-search))
+          nil)))
   (color-rg-rerun))
 
 (defun color-rg-rerun-literal (&optional nointeractive)
