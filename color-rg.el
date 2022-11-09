@@ -499,8 +499,9 @@ used to restore window configuration after file content changed.")
     (define-key map (kbd "E") 'color-rg-rerun-change-exclude-files)
 
     (define-key map (kbd "o") 'color-rg-rerun-parent-dir)
-    (define-key map (kbd "O") 'color-rg-rerun-change-dir)
+    (define-key map (kbd "O") 'color-rg-rerun-in-project)
 
+    (define-key map (kbd "s") 'color-rg-rerun-change-dir)
     (define-key map (kbd "S") 'color-rg-customized-search)
 
     (define-key map (kbd "q") 'color-rg-quit)
@@ -1381,6 +1382,13 @@ This function is the opposite of `color-rg-rerun-change-globs'"
   (interactive)
   (setf (color-rg-search-dir color-rg-cur-search)
         (file-name-directory (directory-file-name (color-rg-search-dir color-rg-cur-search))))
+  (color-rg-rerun))
+
+(defun color-rg-rerun-in-project ()
+  "Rerun last command in project root."
+  (interactive)
+  (setf (color-rg-search-dir color-rg-cur-search)
+        (file-name-directory (color-rg-project-root-dir)))
   (color-rg-rerun))
 
 (defun color-rg-rerun-change-dir ()
