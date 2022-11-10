@@ -612,6 +612,11 @@ This function is called from `compilation-filter-hook'."
              ;; sets buffer-modified to nil before running the command,
              ;; so the buffer is still unmodified if there is no output.
              (cond ((and (zerop code) (buffer-modified-p))
+                    ;; Fix issue #56: https://github.com/manateelazycat/color-rg/issues/56
+                    (with-current-buffer color-rg-buffer
+                      (read-only-mode -1)
+                      (ansi-color-apply-on-region (point-min) (point-max))
+                      (read-only-mode 1))
                     ;; Clone to temp buffer and we restore by command, such as `color-rg-unfilter'.
                     (run-at-time "1sec" nil
                                  (lambda ()
@@ -654,9 +659,9 @@ This function is called from `compilation-filter-hook'."
 (cl-defstruct (color-rg-search (:constructor color-rg-search-create)
                                (:constructor color-rg-search-new (pattern dir))
                                (:copier nil))
-  keyword             ; search keyword
-  dir                 ; base directory
-  globs               ; filename only match these globs will be searched
+  keyword           ; search keyword
+  dir               ; base directory
+  globs             ; filename only match these globs will be searched
   file-exclude ; toggle exclude files, t means filename NOT match the globs will be searched
   literal      ; literal patterh (t or nil)
   case-sensitive                        ; case-sensitive (t or nil)
