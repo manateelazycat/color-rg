@@ -1627,7 +1627,10 @@ If STAY is non-nil, move cursor to the opened file."
   (goto-line line)
   (beginning-of-line)
 
-  (color-rg-jump-to-column column))
+  (color-rg-jump-to-column column)
+
+  ;; Scroll current point to first line of window.
+  (set-window-start (get-buffer-window) (point)))
 
 (defun color-rg-move-to-column (column)
   (beginning-of-line)
