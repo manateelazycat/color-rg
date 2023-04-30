@@ -1766,7 +1766,7 @@ Function `move-to-column' can't handle mixed string of Chinese and English corre
       (save-excursion
         (dolist (line color-rg-changed-lines)
           (let (match-file match-line changed-line-content)
-            (setq changed-line-content (color-rg-get-line-content color-rg-buffer line))
+            (setq changed-line-content (substring-no-properties (color-rg-get-line-content color-rg-buffer line)))
             (with-current-buffer color-rg-buffer
               ;; Get match file and line.
               (goto-line line)
