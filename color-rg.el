@@ -1196,8 +1196,9 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
           (or keyword
               (color-rg-read-input)))
          (search-directory
-          (or directory
-              (expand-file-name default-directory)))
+          (expand-file-name
+           (or directory
+               default-directory)))
          (search-globs
           (or globs
               "everything")))
@@ -1207,29 +1208,28 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 
 (defun color-rg-search-symbol ()
   (interactive)
-  (color-rg-search-input (color-rg-pointer-string) (expand-file-name default-directory)))
+  (color-rg-search-input (color-rg-pointer-string) default-directory))
 
 (defun color-rg-search-symbol-with-type ()
   (interactive)
-  (color-rg-search-input (color-rg-pointer-string) (expand-file-name default-directory) (color-rg-read-file-type "Filter file by type (default: [ %s ]): ")))
+  (color-rg-search-input (color-rg-pointer-string) default-directory (color-rg-read-file-type "Filter file by type (default: [ %s ]): ")))
 
 (defun color-rg-search-input-in-current-file ()
   (interactive)
-  (color-rg-search-input (color-rg-read-input) (expand-file-name (buffer-file-name))))
+  (color-rg-search-input (color-rg-read-input) (buffer-file-name)))
 
 (defun color-rg-search-symbol-in-current-file ()
   (interactive)
-  (color-rg-search-input (color-rg-pointer-string) (expand-file-name (buffer-file-name))))
+  (color-rg-search-input (color-rg-pointer-string) (buffer-file-name)))
 
 (defun color-rg-project-root-dir ()
   "Return root directory of the current project."
   (let ((project (project-current)))
     (if project
-        (expand-file-name
-         (cond
-          ((fboundp 'project-root) (project-root project))
-          ((fboundp 'project-roots) (car (project-roots project)))))
-      (expand-file-name default-directory))))
+        (cond
+         ((fboundp 'project-root) (project-root project))
+         ((fboundp 'project-roots) (car (project-roots project))))
+      default-directory)))
 
 (defalias 'color-rg-search-input-in-project 'color-rg-search-project)
 
