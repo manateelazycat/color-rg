@@ -737,10 +737,9 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           ;; NOTE:                      ;
           ;;
-          ;; ripgrep is default use heading option (group matches by each file) in all OS's terminal.
-          ;; But not greoup matches on Windows/Emacs.
-          ;; So we add this option force to make group matches work always.
-          ;;
+          ;; ripgrep uses heading option (group matches by each file) in
+          ;; all OS's terminal by default, except on Windows/Emacs.  So
+          ;; we add this option to make group matches work always.
           (list "--heading")
 
           (list "--max-columns" (number-to-string color-rg-max-column))
@@ -791,7 +790,9 @@ CASE-SENSITIVE determinies if search is case-sensitive."
     path))
 
 (defun color-rg-search (keyword directory globs &optional literal no-ignore no-node case-sensitive file-exclude)
-  (let* ((command (color-rg-build-command keyword directory globs literal no-ignore no-node case-sensitive file-exclude)))
+  (let ((command (color-rg-build-command keyword directory globs
+                                         literal no-ignore no-node
+                                         case-sensitive file-exclude)))
     ;; Reset visit temp buffers.
     (setq color-rg-temp-visit-buffers nil)
     ;; Reset hit count.
@@ -800,7 +801,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
     (if (get-buffer color-rg-buffer)
         (with-current-buffer color-rg-buffer
           (let ((inhibit-read-only t))
-            ;; Switch to `color-rg-mode' first, otherwise `erase-buffer' will cause "save-excursion: end of buffer" error.
+            ;; Switch to `color-rg-mode' first, otherwise `erase-buffer'
+            ;; will cause "save-excursion: end of buffer" error.
             (color-rg-mode)
             ;; Erase buffer content.
             (read-only-mode -1)
@@ -810,12 +812,16 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
     ;; Run search command.
     (with-current-buffer color-rg-buffer
-      ;; Fix compatibility issues with doom-emacs, because it changed the value of compilation-buffer-name-function.
-      (setq-local compilation-buffer-name-function #'compilation--default-buffer-name)
+      ;; Fix compatibility issues with doom-emacs, because it changed
+      ;; the value of `compilation-buffer-name-function'.
+      (setq-local compilation-buffer-name-function
+                  #'compilation--default-buffer-name)
+      ;; Update compilation's annotation.
+      (setq default-directory directory)
       ;; Start command.
       (compilation-start command 'color-rg-mode)
 
-      ;; save last search
+      ;; Save last search.
       (setq-default color-rg-cur-search
                     (color-rg-search-create
                      :keyword keyword
@@ -1192,17 +1198,17 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
   ;; Set `enable-local-variables' to :safe, avoid emacs ask annoyingly question when open file by color-rg.
   (setq enable-local-variables :safe)
   ;; Search.
-  (let* ((search-keyboard
-          (or keyword
-              (color-rg-read-input)))
-         (search-directory
-          (expand-file-name
-           (or directory
-               default-directory)))
-         (search-globs
-          (or globs
-              "everything")))
-    (color-rg-search search-keyboard
+  (let ((search-keyword
+         (or keyword
+             (color-rg-read-input)))
+        (search-directory
+         (expand-file-name
+          (or directory
+              default-directory)))
+        (search-globs
+         (or globs
+             "everything")))
+    (color-rg-search search-keyword
                      search-directory
                      search-globs)))
 
