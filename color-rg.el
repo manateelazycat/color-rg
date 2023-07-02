@@ -816,8 +816,13 @@ CASE-SENSITIVE determinies if search is case-sensitive."
       ;; the value of `compilation-buffer-name-function'.
       (setq-local compilation-buffer-name-function
                   #'compilation--default-buffer-name)
-      ;; Update compilation's annotation.
-      (setq default-directory directory)
+
+      ;; Set `default-directory', avoid `compilation-start' throw 'no such directory' when it run `cd' command.
+      (setq default-directory
+            (if (file-directory-p directory)
+                directory
+              (file-name-directory directory)))
+
       ;; Start command.
       (compilation-start command 'color-rg-mode)
 
