@@ -824,6 +824,8 @@ CASE-SENSITIVE determinies if search is case-sensitive."
               (file-name-directory directory)))
 
       ;; Start command.
+      (when (eq system-type 'windows-nt)
+	      (setq command (concat "powershell " command)))
       (compilation-start command 'color-rg-mode)
 
       ;; Save last search.
@@ -871,6 +873,8 @@ user more freedom to use rg with special arguments."
       ;; Fix compatibility issues with doom-emacs, because it changed the value of compilation-buffer-name-function.
       (setq-local compilation-buffer-name-function #'compilation--default-buffer-name)
       ;; Start command.
+      (when (eq system-type 'windows-nt)
+	      (setq command (concat "powershell " command)))
       (compilation-start command 'color-rg-mode)
 
       (color-rg-update-header-line))
