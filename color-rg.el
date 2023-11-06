@@ -733,7 +733,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
   (let ((command-line
          (append
 
-          (list "--column --color=always -H")
+          (list "--no-config --column --color=always -H")
 
           ;; NOTE:                      ;
           ;;
