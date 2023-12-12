@@ -41,39 +41,39 @@ Bind your favorite key to functions:
 
 ### Keymap for view mode
 
-|   Key    | Description                                                             |
-| :------: | :---------------------------------------------------------------------- |
-|   C-a    | Jump to first editable position of current line                         |
-|   Tab    | Jump to next match keyword                                              |
-| Back Tab | Jump to previous match keyword                                          |
-|    j     | Jump to next match keyword                                              |
-|    k     | Jump to previous match keyword                                          |
-|    h     | Jump to next match file                                                 |
-|    l     | Jump to previous match file                                             |
-|    i     | Insert current line                                                     |
-|   SPC    | Open file                                                               |
-|   RET    | Open file relative to match line                                        |
-| Ctrl + m | Open file relative to match line                                        |
-|    r     | Replace all matches                                                     |
-|    e     | Enable edit mode                                                        |
-|    f     | Filter results match regexp                                             |
-|    F     | Filter results not match regexp                                         |
-|    x     | Filter results match file extension                                     |
-|    X     | Filter results not match file extension                                 |
-|    u     | Don't filter file extension                                             |
-|    D     | Delete current line from results                                        |
-|    I     | Toggle to `include`/`exclude` the ignore files then rerun last search   |
-|    N     | Toggle to respect `color-rg-search-ignore-rules` then rerun last search |
-|    C     | Toggle to `smart case`/`case sensitive` then rerun last search          |
-|    L     | Re-search pattern as literal                                            |
-|    R     | Re-search pattern as regexp                                             |
-|    G     | Rerun last search only include specified file type                      |
-|    E     | Rerun last search exclude specified file type                           |
-|    o     | Rerun last search in (up one level) parent directory                    |
-|    O     | Rerun last search in project root directory                             |
-|    s     | Rerun rg with customized directory.                                     |
-|    S     | Rerun rg with customized arguments.                                     |
-|    q     | Quit                                                                    |
+| Key      | Description                                                                            |
+| :------: | :----------------------------------------------------------------------                |
+| C-a      | Jump to first editable position of current line                                        |
+| Tab      | Jump to next match keyword                                                             |
+| Back Tab | Jump to previous match keyword                                                         |
+| j        | Jump to next match keyword                                                             |
+| k        | Jump to previous match keyword                                                         |
+| h        | Jump to next match file                                                                |
+| l        | Jump to previous match file                                                            |
+| i        | Insert current line                                                                    |
+| SPC      | Open file                                                                              |
+| RET      | Open file relative to match line                                                       |
+| Ctrl + m | Open file relative to match line                                                       |
+| r        | Replace all matches (after insert replace string, press y, n or ! for replace action ) |
+| e        | Enable edit mode                                                                       |
+| f        | Filter results match regexp                                                            |
+| F        | Filter results not match regexp                                                        |
+| x        | Filter results match file extension                                                    |
+| X        | Filter results not match file extension                                                |
+| u        | Don't filter file extension                                                            |
+| D        | Delete current line from results                                                       |
+| I        | Toggle to `include`/`exclude` the ignore files then rerun last search                  |
+| N        | Toggle to respect `color-rg-search-ignore-rules` then rerun last search                |
+| C        | Toggle to `smart case`/`case sensitive` then rerun last search                         |
+| L        | Re-search pattern as literal                                                           |
+| R        | Re-search pattern as regexp                                                            |
+| G        | Rerun last search only include specified file type                                     |
+| E        | Rerun last search exclude specified file type                                          |
+| o        | Rerun last search in (up one level) parent directory                                   |
+| O        | Rerun last search in project root directory                                            |
+| s        | Rerun rg with customized directory.                                                    |
+| S        | Rerun rg with customized arguments.                                                    |
+| q        | Quit                                                                                   |
 
 ### Keymap for edit mode
 
