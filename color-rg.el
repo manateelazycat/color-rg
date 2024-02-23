@@ -345,7 +345,7 @@ Default is enable, set this variable to nil if you want search files match gitig
   :type 'boolean
   :group 'color-rg)
 
-(defcustom color-rg-search-ignore-rules "-g '!node_modules' -g '!dist'"
+(defcustom color-rg-search-ignore-rules "-g '!node_modules' -g '!dist' -g '!TAGS' -g '!tags' -g '!*~'"
   "When `color-rg-search-no-ignore-file' is non-nil, color-rg will search any file.
 Include file match gitignore rule.
 
