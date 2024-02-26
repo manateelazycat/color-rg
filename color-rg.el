@@ -463,6 +463,9 @@ used to restore window configuration after file content changed.")
 
 (defvar color-rg-files-history nil "History for files args.")
 
+(defvar color-rg-command-prefix ""
+  "Maybe set powershell prefix to run rg command on windows")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; color-rg mode ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar color-rg-mode-map
   (let ((map (make-sparse-keymap)))
@@ -824,8 +827,9 @@ CASE-SENSITIVE determinies if search is case-sensitive."
               (file-name-directory directory)))
 
       ;; Start command.
-      (when (eq system-type 'windows-nt)
-	      (setq command (concat "powershell " command)))
+      (when (> (length color-rg-command-prefix) 0)
+	    (setq command (concat color-rg-command-prefix " " command)))
+      
       (compilation-start command 'color-rg-mode)
 
       ;; Save last search.
@@ -873,8 +877,8 @@ user more freedom to use rg with special arguments."
       ;; Fix compatibility issues with doom-emacs, because it changed the value of compilation-buffer-name-function.
       (setq-local compilation-buffer-name-function #'compilation--default-buffer-name)
       ;; Start command.
-      (when (eq system-type 'windows-nt)
-	      (setq command (concat "powershell " command)))
+      (when (> (length color-rg-command-prefix) 0)
+	    (setq command (concat color-rg-command-prefix " " command)))
       (compilation-start command 'color-rg-mode)
 
       (color-rg-update-header-line))
