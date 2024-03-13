@@ -354,6 +354,20 @@ you can customize ignore rules with your like."
   :type 'string
   :group 'color-rg)
 
+(defcustom color-rg-show-lines-before-match nil
+  "If you set this option with some number, color-rg will pass '-A NUM' to rg.
+
+To show lines after each match."
+  :type 'integer
+  :group 'color-rg)
+
+(defcustom color-rg-show-lines-after-match nil
+  "If you set this option with some number, color-rg will pass '-A NUM' to rg.
+
+To show lines after each match."
+  :type 'integer
+  :group 'color-rg)
+
 (defface color-rg-font-lock-header-line-text
   '((t (:foreground "Green3" :bold t)))
   "Face for header line text."
@@ -755,6 +769,17 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           (when color-rg-search-compressed-file
             (list "-z"))
+
+          (when (and color-rg-show-lines-before-match
+                     (integerp color-rg-show-lines-before-match))
+            (list (format "-B %s" color-rg-show-lines-before-match)))
+
+          (when (and color-rg-show-lines-after-match
+                     (integerp color-rg-show-lines-after-match))
+            (list (format "-A %s" color-rg-show-lines-after-match)))
+
+          ;; Multiline search
+          (list "-U")
 
           (when (color-rg-is-custom-file-pattern globs)
             (list (concat "--type-add " (shell-quote-argument (concat "custom:" globs)))))
