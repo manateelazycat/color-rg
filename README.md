@@ -144,6 +144,15 @@ rg --type-add 'custom:*.el'
 rg --type-add "custom:*.el"
 ```
 
+### Works with Windows
+Some user need add `powershell` before start command `rg`, you need custom option `color-rg-command-prefix`
+
+### Multi-line search
+color-rg support rg option `-U` default, you can pass regex string `find-file.*\n(goto-char` to match code block that first line is start with `find-file` and second line start with `goto-char`
+
+### Show match-line context
+When you set `color-rg-show-lines-before-match` or `color-rg-show-lines-after-match`, color-rg will pass number to option `-B` or `-A`, to show context around match line.
+
 ## Contributor
 
 <a href = "https://github.com/manateelazycat/color-rg/graphs/contributors">
