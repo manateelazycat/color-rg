@@ -584,6 +584,11 @@ used to restore window configuration after file content changed.")
   "Handle match highlighting escape sequences inserted by the rg process.
 This function is called from `compilation-filter-hook'."
   (save-excursion
+    ;; We check `compilation-locs' before start filter, if `compilation-locs' is wrong somehow,
+    ;; it will cause `compilation-filter' throw error "wrong-type-argument hash-table-p nil"
+    (unless (and (boundp 'compilation-locs) (hash-table-p compilation-locs))
+      (setq-local compilation-locs (make-hash-table :test 'equal)))
+
     (forward-line 0)
     (let ((end (point)) beg)
       (goto-char compilation-filter-start)
