@@ -922,7 +922,9 @@ user more freedom to use rg with special arguments."
          (input-string
           (string-trim
            (read-string
-            (format "COLOR-RG Search (%s): " current-symbol)
+            (if current-symbol
+                (format "COLOR-RG Search (%s): " current-symbol)
+              "COLOR-RG Search: ")
             nil
             'color-rg-read-input-history
             ))))
