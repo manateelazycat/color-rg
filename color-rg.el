@@ -1099,12 +1099,11 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
 
 (defun color-rg-clone-to-temp-buffer ()
   (color-rg-kill-temp-buffer)
-  (when (buffer-live-p color-rg-buffer)
+  (when (get-buffer color-rg-buffer)
     (with-current-buffer color-rg-buffer
       (add-hook 'kill-buffer-hook 'color-rg-kill-temp-buffer nil t)
       (generate-new-buffer color-rg-temp-buffer)
-      (append-to-buffer color-rg-temp-buffer (point-min) (point-max))
-      )))
+      (append-to-buffer color-rg-temp-buffer (point-min) (point-max)))))
 
 (defun color-rg-switch-to-view-mode ()
   (interactive)
