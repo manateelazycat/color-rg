@@ -145,7 +145,7 @@ rg --type-add "custom:*.el"
 ```
 
 ### Works with Windows
-Some user need add `powershell` before start command `rg`, you need custom option `color-rg-command-prefix`
+Some user need add `powershell` before start command `rg`, you need custom option `color-rg-command-prefix`, such as `powershell`.
 
 ### Multi-line search
 color-rg support rg option `-U` default, you can pass regex string `find-file.*\n(goto-char` to match code block that first line is start with `find-file` and second line start with `goto-char`
