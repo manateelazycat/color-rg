@@ -962,15 +962,35 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       (forward-sexp 1)
       (cons start (1- (point))))))
 
+(defun color-rg-get-string-node-bound ()
+  (let* ((node (treesit-node-at (point)))
+         (node-type (treesit-node-type node))
+         (node-start (treesit-node-start node))
+         (node-end (treesit-node-end node)))
+    (pcase node-type
+      ("string_content" (cons node-start node-end))
+      ("string_start" (progn
+                        (goto-char node-end)
+                        (thing-edit-get-string-node-bound)))
+      ("string_end" (progn
+                      (goto-char (1- node-start))
+                      (thing-edit-get-string-node-bound))))))
+
 (defun color-rg-pointer-string ()
   (if (use-region-p)
       ;; Get region string if mark is set.
       (buffer-substring-no-properties (region-beginning) (region-end))
     ;; Get current symbol or string, and remove prefix char before return.
     (let* ((current-string (if (color-rg-in-string-p)
-                               (buffer-substring-no-properties
-                                (1+ (car (color-rg-string-start+end-points)))
-                                (cdr (color-rg-string-start+end-points)))
+                               (let ((string-node-bound (thing-edit-get-string-node-bound)))
+                                 (if string-node-bound
+                                     (buffer-substring-no-properties
+                                      (car string-node-bound)
+                                      (cdr string-node-bound))
+                                   (buffer-substring-no-properties
+                                    (1+ (car (color-rg-string-start+end-points)))
+                                    (cdr (color-rg-string-start+end-points)))
+                                   ))
                              ""))
            (current-symbol (if (or (string-empty-p current-string)
                                    (string-match-p "[[:space:]]" current-string))
