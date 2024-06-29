@@ -971,10 +971,10 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       ("string_content" (cons node-start node-end))
       ("string_start" (progn
                         (goto-char node-end)
-                        (thing-edit-get-string-node-bound)))
+                        (color-rg-get-string-node-bound)))
       ("string_end" (progn
                       (goto-char (1- node-start))
-                      (thing-edit-get-string-node-bound))))))
+                      (color-rg-get-string-node-bound))))))
 
 (defun color-rg-pointer-string ()
   (if (use-region-p)
@@ -982,7 +982,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       (buffer-substring-no-properties (region-beginning) (region-end))
     ;; Get current symbol or string, and remove prefix char before return.
     (let* ((current-string (if (color-rg-in-string-p)
-                               (let ((string-node-bound (thing-edit-get-string-node-bound)))
+                               (let ((string-node-bound (color-rg-get-string-node-bound)))
                                  (if string-node-bound
                                      (buffer-substring-no-properties
                                       (car string-node-bound)
