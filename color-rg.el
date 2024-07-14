@@ -1377,6 +1377,11 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       ;; Update hit number in header line.
       (color-rg-update-header-line-hits))))
 
+(defun color-rg-kill-line ()
+  ;; Make sure `kill-whole-line' is nil
+  (let (kill-whole-line)
+    (kill-line)))
+
 (defun color-rg-remove-line-from-results ()
   (interactive)
   (save-excursion
@@ -1384,8 +1389,8 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       (when (color-rg-get-row-column-position)
         (read-only-mode -1)
         (beginning-of-line)
-        (kill-line)
-        (kill-line)
+        (color-rg-kill-line)
+        (color-rg-kill-line)
         (read-only-mode 1)
         ))))
 
@@ -1850,11 +1855,11 @@ Function `move-to-column' can't handle mixed string of Chinese and English corre
             (setq color-rg-temp-visit-buffers (remove (current-buffer) color-rg-temp-visit-buffers))
             ;; Kill target line.
             (goto-line match-line)
-            (kill-line)
+            (color-rg-kill-line)
             ;; Insert change line.
             (if (string-equal changed-line-content "")
                 ;; Kill empty line if line mark as deleted.
-                (kill-line)
+                (color-rg-kill-line)
               ;; Otherwise insert new line into file.
               (insert changed-line-content))))
         ;; Save files after change.
