@@ -144,6 +144,8 @@ rg --type-add 'custom:*.el'
 rg --type-add "custom:*.el"
 ```
 
+Note: `color-rg-customized-search` is design for re-run customized arguments after you have run `color-rg-search-input`, please don't use this command directly.
+
 ### Works with Windows
 Some user need add `powershell` before start command `rg`, you need custom option `color-rg-command-prefix`, such as `powershell`.
 
