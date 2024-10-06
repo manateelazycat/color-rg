@@ -1285,7 +1285,8 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
          (or file-list
              ;; Try to get file list from EAF file manager.
              (when (and (require 'eaf nil t)
-                        (equal eaf--buffer-app-name "file-manager"))
+                        (equal eaf--buffer-app-name "file-manager")
+                        (string-prefix-p "search:" eaf--buffer-args))
                (eaf-call-sync "execute_function" eaf--buffer-id "get_file_names")))))
     (color-rg-search search-keyword
                      search-directory
