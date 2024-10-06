@@ -523,6 +523,8 @@ used to restore window configuration after file content changed.")
     (define-key map (kbd "s") #'color-rg-rerun-change-dir)
     (define-key map (kbd "S") #'color-rg-customized-search)
 
+    (define-key map (kbd "z") #'color-rg-recursively)
+
     (define-key map (kbd "q") #'color-rg-quit)
     map)
   "Keymap used by `color-rg-mode'.")
@@ -605,6 +607,7 @@ This function is called from `compilation-filter-hook'."
         ;; Highlight filename.
         (goto-char beg)
         (while (re-search-forward "^\033\\[[0]*m\033\\[35m\\(.*?\\)\033\\[[0]*m$" end 1)
+          (add-to-list 'color-rg-search-files (substring-no-properties (match-string 1)) t)
           (replace-match (concat (propertize (match-string 1)
                                              'face nil 'font-lock-face 'color-rg-font-lock-file))
                          t t))
@@ -622,8 +625,7 @@ This function is called from `compilation-filter-hook'."
         ;; Delete all remaining escape sequences
         (goto-char beg)
         (while (re-search-forward "\033\\[[0-9;]*[0mK]" end 1)
-          (replace-match "" t t))))
-    ))
+          (replace-match "" t t))))))
 
 (defun color-rg-process-setup ()
   "Setup compilation variables and buffer for `color-rg'."
@@ -673,6 +675,8 @@ This function is called from `compilation-filter-hook'."
                             (propertize "x / X / u" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
                             (propertize "  Filter regex: " 'font-lock-face 'color-rg-font-lock-header-line-text)
                             (propertize "f / F" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
+                            (propertize "  Recursively " 'font-lock-face 'color-rg-font-lock-header-line-text)
+                            (propertize "z" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
                             (propertize "  Customize " 'font-lock-face 'color-rg-font-lock-header-line-text)
                             (propertize "C" 'font-lock-face 'color-rg-font-lock-header-line-edit-mode)
                             (propertize " ]" 'font-lock-face 'color-rg-font-lock-line-number)
@@ -702,6 +706,9 @@ Becomes buffer local in `color-rg-mode' buffers.")
 
 (defvar color-rg-builtin-type-aliases nil
   "Cache for 'rg --type-list'.")
+
+(defvar color-rg-search-files nil
+  "Search files by rg command output.")
 
 (defconst color-rg-internal-type-aliases
   '(("all" . "all defined type aliases") ; rg --type all
@@ -849,6 +856,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
             (read-only-mode -1)
             (erase-buffer)))
       (generate-new-buffer color-rg-buffer))
+    (setq color-rg-search-files nil)
     (setq color-rg-changed-lines nil)
 
     ;; Run search command.
@@ -888,6 +896,14 @@ CASE-SENSITIVE determinies if search is case-sensitive."
     (pop-to-buffer color-rg-buffer)
     (goto-char (point-min))
     ))
+
+(defun color-rg-recursively ()
+  "Search new keyword with match file list."
+  (interactive)
+  (let* ((keyword (read-from-minibuffer "Recursively search: "))
+         (files color-rg-search-files))
+    (setq color-rg-search-files nil)
+    (color-rg-search-input keyword default-directory nil files)))
 
 (defun color-rg-customized-search ()
   "Rerun rg with customized arguments. This function will give

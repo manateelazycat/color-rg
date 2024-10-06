@@ -65,6 +65,7 @@ Bind your favorite key to functions:
 | I        | Toggle to `include`/`exclude` the ignore files then rerun last search                  |
 | N        | Toggle to respect `color-rg-search-ignore-rules` then rerun last search                |
 | C        | Toggle to `smart case`/`case sensitive` then rerun last search                         |
+| z        | Search second keyword with file list filter by first keywrod                           |
 | L        | Re-search pattern as literal                                                           |
 | R        | Re-search pattern as regexp                                                            |
 | G        | Rerun last search only include specified file type                                     |
