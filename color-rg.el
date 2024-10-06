@@ -690,6 +690,7 @@ This function is called from `compilation-filter-hook'."
   no-ignore                             ; toggle no-ignore (t or nil)
   no-node                               ; toggle no-node (t or nil)
   mode                                  ; view or edit mode
+  file-list                             ; list of files to search
   )
 
 (defvar color-rg-cur-search (color-rg-search-create)
@@ -747,7 +748,7 @@ excluded."
   "Return non nil if FILES is a custom file pattern."
   (not (assoc globs (color-rg-get-type-aliases))))
 
-(defun color-rg-build-command (keyword dir globs &optional literal no-ignore no-node case-sensitive file-exclude)
+(defun color-rg-build-command (keyword dir globs &optional file-list literal no-ignore no-node case-sensitive file-exclude)
   "Create the command line for KEYWORD.
 LITERAL determines if search will be literal or regexp based.
 NO-IGNORE determinies if search not ignore the ignored files.
@@ -801,7 +802,14 @@ CASE-SENSITIVE determinies if search is case-sensitive."
                 (list "--type-not <F>")
               (list "--type <F>")))
 
-          (list "-e <R>" (format "\"%s\"" (color-rg-filter-tramp-path dir))))))
+          (if file-list
+              (list (concat "-e <R> "
+                            (mapconcat
+                             (lambda (path)
+                               (concat "'" (shell-quote-argument path) "'"))
+                             file-list
+                             " ")))
+            (list "-e <R>" (format "\"%s\"" (color-rg-filter-tramp-path dir)))))))
 
     (setq command-line
           (grep-expand-template
@@ -822,10 +830,10 @@ CASE-SENSITIVE determinies if search is case-sensitive."
           path))
     path))
 
-(defun color-rg-search (keyword directory globs &optional literal no-ignore no-node case-sensitive file-exclude)
-  (let ((command (color-rg-build-command keyword directory globs
+(defun color-rg-search (keyword directory globs &optional file-list literal no-ignore no-node case-sensitive file-exclude)
+  (let ((command (color-rg-build-command keyword directory globs file-list
                                          literal no-ignore no-node
-                                         case-sensitive file-exclude)))
+                                         case-sensitive file-exclude )))
     ;; Reset visit temp buffers.
     (setq color-rg-temp-visit-buffers nil)
     ;; Reset hit count.
@@ -1251,7 +1259,7 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
      globs)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun color-rg-search-input (&optional keyword directory globs)
+(defun color-rg-search-input (&optional keyword directory globs file-list)
   (interactive)
   ;; Save window configuration before do search.
   ;; Just save when `color-rg-window-configuration-before-search' is nil
@@ -1272,10 +1280,12 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
               default-directory)))
         (search-globs
          (or globs
-             "everything")))
+             "everything"))
+        (search-file-list file-list))
     (color-rg-search search-keyword
                      search-directory
-                     search-globs)))
+                     search-globs
+                     search-file-list)))
 
 (defun color-rg-search-symbol ()
   (interactive)
@@ -1416,9 +1426,10 @@ from `color-rg-cur-search'."
         (literal (color-rg-search-literal color-rg-cur-search))
         (case-sensitive (color-rg-search-case-sensitive color-rg-cur-search))
         (no-ignore (color-rg-search-no-ignore color-rg-cur-search))
-        (no-node (color-rg-search-no-node color-rg-cur-search)))
+        (no-node (color-rg-search-no-node color-rg-cur-search))
+        (file-list (color-rg-search-file-list color-rg-cur-search)))
     (setcar compilation-arguments
-            (color-rg-build-command keyword dir globs literal no-ignore no-node case-sensitive file-exclude))
+            (color-rg-build-command keyword dir globs file-list literal no-ignore no-node case-sensitive file-exclude))
     ;; Reset hit count.
     (setq color-rg-hit-count 0)
 
@@ -1429,8 +1440,7 @@ from `color-rg-cur-search'."
     (color-rg-recompile)
     (color-rg-update-header-line)
     (pop-to-buffer color-rg-buffer)
-    (goto-char (point-min))
-    ))
+    (goto-char (point-min))))
 
 (defun color-rg-rerun-regexp (&optional keyword)
   "Re-search as regexp."
