@@ -7,8 +7,8 @@
 ;; Copyright (C) 2018, Andy Stewart, all rights reserved.
 ;; Created: 2018-08-26 14:22:12
 ;; Version: 5.6
-;; Last-Updated: 2020-05-04 17:52:55
-;;           By: Andy Stewart
+;; Last-Updated: Tue Jan 21 21:44:40 2025 (-0500)
+;;           By: Mingde (Matthew) Zeng
 ;; URL: http://www.emacswiki.org/emacs/download/color-rg.el
 ;; Keywords:
 ;; Compatibility: GNU Emacs 27.0.50
@@ -875,7 +875,7 @@ CASE-SENSITIVE determinies if search is case-sensitive."
       ;; Start command.
       (when (> (length color-rg-command-prefix) 0)
 	    (setq command (concat color-rg-command-prefix " " command)))
-      
+
       (compilation-start command 'color-rg-mode)
 
       ;; Save last search.
@@ -987,18 +987,22 @@ This assumes that `color-rg-in-string-p' has already returned true, i.e.
       (cons start (1- (point))))))
 
 (defun color-rg-get-string-node-bound ()
-  (let* ((node (treesit-node-at (point)))
-         (node-type (treesit-node-type node))
-         (node-start (treesit-node-start node))
-         (node-end (treesit-node-end node)))
-    (pcase node-type
-      ("string_content" (cons node-start node-end))
-      ("string_start" (progn
-                        (goto-char node-end)
-                        (color-rg-get-string-node-bound)))
-      ("string_end" (progn
-                      (goto-char (1- node-start))
-                      (color-rg-get-string-node-bound))))))
+  (when (and (functionp 'treesit-available-p)
+             (functionp 'treesit-parser-list)
+             (treesit-available-p)
+             (treesit-parser-list))
+    (let* ((node (treesit-node-at (point)))
+           (node-type (when node (treesit-node-type node)))
+           (node-start (when node (treesit-node-start node)))
+           (node-end (when node (treesit-node-end node))))
+      (pcase node-type
+        ("string_content" (cons node-start node-end))
+        ("string_start" (progn
+                          (goto-char node-end)
+                          (color-rg-get-string-node-bound)))
+        ("string_end" (progn
+                        (goto-char (1- node-start))
+                        (color-rg-get-string-node-bound)))))))
 
 (defun color-rg-pointer-string ()
   (if (use-region-p)
