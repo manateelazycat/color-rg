@@ -513,6 +513,7 @@ used to restore window configuration after file content changed.")
     (define-key map (kbd "N") #'color-rg-rerun-toggle-node)
     (define-key map (kbd "C") #'color-rg-rerun-toggle-case)
     (define-key map (kbd "L") #'color-rg-rerun-literal)
+    (define-key map (kbd "W") #'color-rg-rerun-word)
     (define-key map (kbd "R") #'color-rg-rerun-regexp)
     (define-key map (kbd "G") #'color-rg-rerun-change-globs)
     (define-key map (kbd "E") #'color-rg-rerun-change-exclude-files)
@@ -805,6 +806,9 @@ CASE-SENSITIVE determinies if search is case-sensitive."
 
           (when literal
             (list "--fixed-strings"))
+
+          (when (and (stringp literal) (string= literal "word"))
+            (list "--word-regexp"))
 
           (when (not (equal globs "everything"))
             (if file-exclude
@@ -1543,6 +1547,15 @@ This function is the opposite of `color-rg-rerun-change-globs'"
             (read-string "Re-search with-literal: "
                          (color-rg-search-keyword color-rg-cur-search)))
       (color-rg-rerun))))
+
+(defun color-rg-rerun-word ()
+  "Re-search as whole word."
+  (interactive)
+  (setf (color-rg-search-keyword color-rg-cur-search)
+        (read-string (format "Re-search with whole word: ")
+                     (color-rg-search-keyword color-rg-cur-search)))
+  (setf (color-rg-search-literal color-rg-cur-search) "word")
+  (color-rg-rerun))
 
 (defun color-rg-rerun-toggle-case ()
   "Rerun last search with toggled case sensitivity setting."

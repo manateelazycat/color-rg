@@ -67,6 +67,7 @@ Bind your favorite key to functions:
 | C        | Toggle to `smart case`/`case sensitive` then rerun last search                         |
 | z        | Search second keyword with file list filter by first keywrod                           |
 | L        | Re-search pattern as literal                                                           |
+| W        | Re-search pattern as whole word                                                           |
 | R        | Re-search pattern as regexp                                                            |
 | G        | Rerun last search only include specified file type                                     |
 | E        | Rerun last search exclude specified file type                                          |
