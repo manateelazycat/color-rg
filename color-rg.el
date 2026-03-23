@@ -1514,14 +1514,16 @@ This function is the opposite of `color-rg-rerun-change-globs'"
   "Rerun last command in parent directory."
   (interactive)
   (setf (color-rg-search-dir color-rg-cur-search)
-        (file-name-directory (directory-file-name (color-rg-search-dir color-rg-cur-search))))
+        (expand-file-name
+         (file-name-directory (directory-file-name (color-rg-search-dir color-rg-cur-search)))))
   (color-rg-rerun))
 
 (defun color-rg-rerun-in-project ()
   "Rerun last command in project root."
   (interactive)
   (setf (color-rg-search-dir color-rg-cur-search)
-        (file-name-directory (color-rg-project-root-dir)))
+        (expand-file-name
+         (file-name-directory (color-rg-project-root-dir))))
   (color-rg-rerun))
 
 (defun color-rg-rerun-change-dir ()
